@@ -1,16 +1,14 @@
 #!/usr/bin/env python
 # coding:utf-8
-import _env  # noqa
 from hashlib import md5
-from solo.config import SECRET
 import json
 
 
-def signature_verify(data, signature, secret=SECRET):
-    return signature == make_signature(data, secret=SECRET)
+def signature_verify(data, signature, secret):
+    return signature == make_signature(data, secret=secret)
 
 
-def make_signature(data, secret=SECRET):
+def make_signature(data, secret):
     # FIXME: 并不支持JSON嵌套的情况
     '''计算给定数据的签名.
 

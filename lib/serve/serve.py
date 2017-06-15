@@ -1,9 +1,6 @@
 #! /usr/bin/env python
 # coding:utf-8
 
-import sys
-import os
-import argparse
 import tornado.web
 import tornado.ioloop
 
@@ -16,9 +13,11 @@ from config import app_config
 # create_app: collect route
 from create_app import create_app
 
+import lib.web.model.sql_db
+
+from model.user import User
+
 # run
-
-
 def run_server():
     # print '执行到了这里...2'
     # if len(sys.argv) != 1 and sys.argv[1][:6] == '--port':
@@ -32,5 +31,4 @@ def run_server():
 
 
 if __name__ == '__main__':
-    print 'in serve: ', app_config.DEBUG
     run_server()

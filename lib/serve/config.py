@@ -4,6 +4,6 @@ import os
 
 from spec.config import config
 
-config_name = os.getenv('READ_IN_LIFE_API_ENV', 'default')
+config_name = os.getenv('READ_IN_LIFE_API_ENV', 'development')
 
 app_config = config[config_name]

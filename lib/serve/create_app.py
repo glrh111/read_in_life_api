@@ -4,6 +4,8 @@
 from tornado.web import Application
 
 from lib.web.view import route as base_route
+from view import route_list
+
 from lib.serve.config import app_config
 
 def application(
@@ -26,4 +28,4 @@ def application(
 def create_app():
 
     # collect route
-    return application([base_route], Application)
+    return application([base_route] + route_list, Application)
