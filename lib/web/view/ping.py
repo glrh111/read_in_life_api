@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # coding:utf-8
-import _env  # noqa
-from _route import route
-from app.web.view.baseview import View
+
+from . import route
+from tornado.web import RequestHandler
 
 
 @route('/_/ping')
-class Ping(View):
+class Ping(RequestHandler):
     def get(self):
         self.finish('pong')
