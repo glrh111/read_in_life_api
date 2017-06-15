@@ -10,7 +10,8 @@ log_out: 退出登录 清理session
 
 from lib.web.route import Route
 from tornado.web import RequestHandler
-from lib.web.view.jsonview import JsonQueryView
+from lib.web.view.jsonview import JsonQueryView, JsonPostView
+from lib.web.view.userview import LoginView
 
 from lib.web.model.redis_db import redis
 from lib.web.model.sql_db import sql_session
@@ -44,9 +45,11 @@ class Register(RequestHandler):
 
 
 @account_route('/log_in')
-class LogIn(RequestHandler):
+class LogIn(LoginView, JsonPostView):
     def post(self):
-        self.finish('pong from ping.ping')
+        self.finish({
+            '我草拟大爷': '哈哈哈'
+        })
 
 
 @account_route('/log_out')

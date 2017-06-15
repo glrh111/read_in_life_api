@@ -30,6 +30,7 @@ class JsonView(BaseView):
     @gen.coroutine
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
+        print 'in JsonView _execute ',self.request.method, self.SUPPORTED_METHODS
         try:
             if self.request.method not in self.SUPPORTED_METHODS:
                 raise HTTPError(405)
@@ -62,6 +63,7 @@ class JsonView(BaseView):
             if self._auto_finish and not self._finished:
                 self.finish()
         except Exception, e:
+            print 'in raise'
             self._handle_request_exception(e)
 
     def render(self, chunk):

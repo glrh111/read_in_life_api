@@ -54,3 +54,48 @@ CREATE USER read_in_life WITH PASSWORD 'wocao'; # 创建数据库角色
 CREATE DATABASE read_in_life OWNER read_in_life; # 创建app专属数据库
 GRANT ALL PRIVILEGES ON DATABASE read_in_life to read_in_life; # 授全权
 ```
+
+## ORM使用
+
+1. 过滤
+```
+for user in session.query(User).\
+       filter(User.name=='ed').\
+       filter(User.fullname=='Ed Jones'):
+       print(user)
+       
+1. equals:
+   query.filter(User.name == 'ed')
+2. not equals:
+   query.filter(User.name != 'ed')
+3. LIKE:
+   query.filter(User.name.like('%ed%'))
+4. ILIKE (case-insensitive LIKE):
+   query.filter(User.name.ilike('%ed%'))
+5. IN:
+   query.filter(User.name.in_(['ed', 'wendy', 'jack']))
+
+   # works with query objects too:
+   query.filter(User.name.in_(
+       session.query(User.name).filter(User.name.like('%ed%'))
+   ))
+6. NOT IN:
+   query.filter(~User.name.in_(['ed', 'wendy', 'jack']))
+7. IS NULL:
+   query.filter(User.name == None)
+
+   # alternatively, if pep8/linters are a concern
+   query.filter(User.name.is_(None))
+我曹, 太多了. 自己看文档:
+http://docs.sqlalchemy.org/en/latest/orm/tutorial.html#common-filter-operators
+```
+
+2. 增加记录
+```
+user = User(**{
+    'nickname': 'wangli'
+})
+
+sql_session.add(user)
+sql_session.commit()
+```

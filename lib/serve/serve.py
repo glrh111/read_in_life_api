@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 # coding:utf-8
-
+import time
 import tornado.web
 import tornado.ioloop
 
@@ -22,7 +22,6 @@ def run_server():
     # print '执行到了这里...2'
     # if len(sys.argv) != 1 and sys.argv[1][:6] == '--port':
     #     port = sys.argv[1].rsplit('=')[1]
-
     print 'SERVE ON PORT %s' % 8000
     application = create_app()
     application.listen(8000)
@@ -32,3 +31,5 @@ def run_server():
 
 if __name__ == '__main__':
     run_server()
+
+

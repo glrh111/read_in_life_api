@@ -5,6 +5,8 @@ this BaseView do nothing. But add a layer to tornado and actually used.
 import sys
 import traceback
 import httplib
+import json
+import yajl
 from tornado.web import RequestHandler
 from tornado import escape
 from tornado.httpclient import HTTPError
@@ -61,14 +63,36 @@ def write_html_error(self, status_code, **kwargs):
         'message': message,
     }
     self.write(html)
+    print html
 
 def write_error(self, status_code, **kwargs):
+    print "in write error...."
     if self.request.headers.get('accept').startswith('application/json'):
+        print 'in json'
         write_json_error(self, status_code, **kwargs)
     else:
+        print 'in heml'
         write_html_error(self, status_code, **kwargs)
+    self.finish('')
 
 
 class BaseView(RequestHandler):
-
-    pass
+    def _execute(self, transforms, *args, **kwargs):
+        """Executes this request with the given output transforms."""
+        self._transforms = transforms
+        print 'in BaseView _execute ...'
+        try:
+            if self.request.method not in self.SUPPORTED_METHODS:
+                raise HTTPError(405)
+            self.prepare()
+            if not self._finished:
+                args = [self.decode_argument(arg) for arg in args]
+                kwargs = dict((k, self.decode_argument(v, name=k))
+                              for (k, v) in kwargs.iteritems())
+                if hasattr(self, 'init'):
+                    getattr(self, 'init')(*args, **kwargs)
+                getattr(self, self.request.method.lower())(*args, **kwargs)
+                if self._auto_finish and not self._finished:
+                    self.finish()
+        except Exception, e:
+            self._handle_request_exception(e)

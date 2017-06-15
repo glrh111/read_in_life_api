@@ -3,7 +3,7 @@ from error import UserDisabled, LoginRequired
 from baseview import BaseView
 from lib.web.model.session import Session
 from lib.web.model.redis_db import redis
-
+from model.user import User
 from lib.serve.config import app_config
 
 
