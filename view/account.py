@@ -21,21 +21,10 @@ from lib.web.view.error import BadArgument
 account_route = Route(prefix='/account')
 
 @account_route('/ping')
-class Ping(JsonQueryView):
+class Ping(JsonQueryView, LoginView):
     def get(self):
-        print 'week_index: ', self.query.week_index
-        print 'set redis', redis.set('wocao', 'heihei')
 
-        new_user = User(**{
-            'nickname': 'wocaonidaye'
-        })
-        sql_session.add(new_user)
-        sql_session.commit()
-
-        for user in sql_session.query(User).all():
-            print user.nickname, user.user_id
-
-        self.finish({
+        self.render({
             'wocao': '挺成功' + redis.get('wocao')
         })
 
@@ -60,13 +49,10 @@ class LogIn(UserView, JsonPostView):
         if user:
             self.login(user)
             self.render({
-                'user_id': user.user_id,
-                'nickname': user.nickname
+                'user': user.base_info()
             })
         else:
-            self.render({
-                '我草拟大爷': '哈哈哈'
-            })
+            self.render({})
 
 
 @account_route('/log_out')

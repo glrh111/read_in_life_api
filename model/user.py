@@ -8,6 +8,12 @@ class User(BaseModel):
     user_id = Column(Integer, primary_key=True)
     nickname = Column(String)
 
+    def base_info(self):
+        return {
+            'user_id': self.user_id,
+            'nickname': self.nickname
+        }
+
     @classmethod
     def can_login(cls):
         return True

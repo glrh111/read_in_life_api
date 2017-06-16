@@ -9,7 +9,7 @@ class Default:
 
     SESSION_EXPIRE = 100  # 100 day
 
-    HOST = 'localhost'
+    HOST = 'read-in-life.com'
 
     # redis config
     REDIS_CONFIG = {
