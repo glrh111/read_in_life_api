@@ -28,8 +28,13 @@ class Base(object):
     @classmethod
     def find_one(cls, spec=None):
         spec = spec or {}
-        record_list = sql_session.query(cls, **spec).limit(1)
-        return record_list[0] if record_list else None
+        query = sql_session.query(cls)
+        for attr, value in spec.items():
+            query = query.filter(
+                getattr(cls, attr) == value
+            )
+        result = query.first()
+        return result or None
 
 
 BaseModel = declarative_base(cls=Base)

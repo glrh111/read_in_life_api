@@ -12,5 +12,6 @@ class User(BaseModel):
     def can_login(cls):
         return True
 
+
 if __name__ == '__main__':
     sql_session.query(User).all()

@@ -7,9 +7,9 @@ class Default:
     PORT = 8000
     SIGNATURE_SECRET = 'iajfiseng,fuckyou'
 
-    SESSION_EXPIRE = 3600 * 24 * 100  # 100 day
+    SESSION_EXPIRE = 100  # 100 day
 
-    HOST = 'read-in-life.com'
+    HOST = 'localhost'
 
     # redis config
     REDIS_CONFIG = {

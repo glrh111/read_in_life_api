@@ -63,24 +63,22 @@ def write_html_error(self, status_code, **kwargs):
         'message': message,
     }
     self.write(html)
-    print html
 
 def write_error(self, status_code, **kwargs):
-    print "in write error...."
     if self.request.headers.get('accept').startswith('application/json'):
-        print 'in json'
         write_json_error(self, status_code, **kwargs)
     else:
-        print 'in heml'
         write_html_error(self, status_code, **kwargs)
     self.finish('')
+
+
+RequestHandler.write_error = write_error
 
 
 class BaseView(RequestHandler):
     def _execute(self, transforms, *args, **kwargs):
         """Executes this request with the given output transforms."""
         self._transforms = transforms
-        print 'in BaseView _execute ...'
         try:
             if self.request.method not in self.SUPPORTED_METHODS:
                 raise HTTPError(405)

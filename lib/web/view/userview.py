@@ -21,14 +21,15 @@ class UserView(BaseView):
         Session.rm(self.current_user_id)
 
     def get_current_user(self):
+        self._current_user = None
         if self.current_user_id:
             user = User.find_one(dict(user_id=self.current_user_id))
             if user is not None:
-                return user
+                self._current_user = user
             else:
                 self.clear_cookie('session', domain="." + app_config.HOST)
                 self.current_user_id = 0
-                return None
+        return self._current_user
 
     def login(self, user):
         if user.can_login:

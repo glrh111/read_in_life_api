@@ -9,12 +9,27 @@ JsonView
 import json
 import yajl
 from tornado.web import HTTPError, gen
+import traceback
+import sys
 
 from error import DictError
-from baseview import BaseView, write_error
+from baseview import BaseView
 from lib.serve.config import app_config
 from lib.jsob import JsOb, StripJsOb
 from lib.signature import make_signature, signature_verify
+from lib.serve.config import app_config
+
+
+def write_error(self, status_code, **kwargs):
+    self.set_header('Content-Type', 'application/json; charset=UTF-8')
+    self.finish(
+        {
+            'code': 2,
+            'message': ''.join(
+                traceback.format_exception(
+                    *sys.exc_info())) if app_config.DEBUG else self._reason
+        }
+    )
 
 
 class JsonView(BaseView):
@@ -30,7 +45,6 @@ class JsonView(BaseView):
     @gen.coroutine
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
-        print 'in JsonView _execute ',self.request.method, self.SUPPORTED_METHODS
         try:
             if self.request.method not in self.SUPPORTED_METHODS:
                 raise HTTPError(405)
@@ -63,7 +77,6 @@ class JsonView(BaseView):
             if self._auto_finish and not self._finished:
                 self.finish()
         except Exception, e:
-            print 'in raise'
             self._handle_request_exception(e)
 
     def render(self, chunk):
