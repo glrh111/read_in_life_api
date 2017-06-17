@@ -119,7 +119,7 @@ alembic upgrade head
 
 ## API服务部署
 ```
-1.. 拉代码
+1.. 拉代码 到 ~/wordspace/里边
    git clone https://github.com/glrh111/read_in_life_api
 2. 进入docker 目录
    cd spec/docker/
@@ -129,9 +129,8 @@ alembic upgrade head
 4. run docker
    docker run --name read-in-life-api -p 8000:8000 --link postgres:postgres --link redis:redis
    --env spec.runtime.env -v /home/glrh11/read_in_life_api:/home/runtime/read_in_life_api  
+   --restart always
    read-in-life:v1
-   
-   本地运行:
    
 ```
 
@@ -152,6 +151,14 @@ GRANT ALL PRIVILEGES ON DATABASE read_in_life to read_in_life; # 授全权
 ```
 
 ## Redis 服务部署 redis
+
+```
+
+```
+
+## Nginx 服务部署
+作用: 使用nginx 代理80端口请求到8000端口
+
 ```
 
 ```

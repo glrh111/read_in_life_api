@@ -35,7 +35,8 @@ class Testing(Default):
 
 class Production(Default):
     """for production"""
-    pass
+    HOST = 'glrh11.com'
+    SQL_SERVER_URL = 'postgresql://read_in_life:wocao@postgres/read_in_life'
 
 
 class UnitTesting(Default):
