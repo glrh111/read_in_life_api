@@ -1,31 +1,36 @@
-FROM registry.ahaflow.com:5000/solo/runtime-base
+FROM ubuntu:16.10
 
-MAINTAINER Mush Mo <mush@pandorica.io>
+MAINTAINER glrh11 <glrh11.com>
 
-# install
-RUN apt-get update && apt-get install -y \
+RUN apt-get clean
+RUN apt-get update
+RUN apt-get install -y \
     git \
     python-dev \
     vim \
     python-pip \
     libssl-dev \
     swig \
-    && rm -rf /var/lib/apt/lists/*
-RUN apt-get install libffi-dev
+    libffi-dev \
+    sudo
+#    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -ms /bin/bash runtime && echo "runtime:wocao" | chpasswd && adduser runtime sudo
 
 ADD ./requirements.txt /home/runtime/requirement.txt
 
 RUN pip install -r /home/runtime/requirement.txt
 
-ADD ./code /home/runtime/sololive
-ADD ./entrypoint /home/runtime/sololive/app/liveapi/entrypoint
+ADD ./entrypoint /home/runtime/entrypoint
+
+# code inner dir: /home/runtime/read_in_life_api
 
 RUN chown -R runtime:runtime /home/runtime
 
-WORKDIR /home/runtime/sololive
+WORKDIR /home/runtime
 USER runtime
 
-EXPOSE 20000
+EXPOSE 8000
 
-ENTRYPOINT ["/home/runtime/sololive/app/liveapi/entrypoint"]
+ENTRYPOINT ["/home/runtime/entrypoint"]
 

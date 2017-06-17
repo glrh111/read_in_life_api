@@ -45,8 +45,6 @@ alembic_config.set_section_option(
     'alembic', 'sqlalchemy.url', app_config.SQL_SERVER_URL
 )
 
-
-
 # init env
 command.init(
     alembic_config,

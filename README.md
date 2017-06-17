@@ -110,14 +110,48 @@ alembic revision --autogenerate -m "do test"
 alembic upgrade head
 ```
 
-后来想在服务启动的时候, 均执行迁移任务, 大体流程如下:
-0. 添加Model进入env模块(手动搞);下面三步写脚本搞.
-1. 删除所有迁移脚本;
-2. 生成迁移脚本;
-3. 迁移
-
 ```
+# 自动迁移脚本migrate.py
 1. 如果加入新表, 将新表的model加入 lib.serve.migration_env 里边, 如下
    from model import Role
 2. 这样, 启动服务的时候, 会运行 lib.serve.migrate 脚本, 自动执行数据库迁移
+```
+
+## API服务部署
+```
+1.. 拉代码
+   git clone https://github.com/glrh111/read_in_life_api
+2. 进入docker 目录
+   cd spec/docker/
+3. build
+   docker build -t read-in-life-api:v1 .
+4. cd ~/read-in-life , 将spec.runtime.env 复制到当前目录
+4. run docker
+   docker run --name read-in-life-api -p 8000:8000 --link postgres:postgres --link redis:redis
+   --env spec.runtime.env -v /home/glrh11/read_in_life_api:/home/runtime/read_in_life_api  
+   read-in-life:v1
+   
+   本地运行:
+   
+```
+
+## Postgres服务部署 docker
+```
+1. docker pull postgres
+2. docker run --name postgres -e POSTGRES_PASSWORD=wocao -v /home/glrh11/pgdata:/var/lib/postgresql/data -d postgres
+3. docker exec -it postgres bash
+4. 初始化数据库 数据库名称 read_in_life 密码 wocao 
+
+adduser read_in_life  # 新建用户
+su - postgres         # 切换用户
+psql                  # 进入DBMS
+
+CREATE USER read_in_life WITH PASSWORD 'wocao'; # 创建数据库角色
+CREATE DATABASE read_in_life OWNER read_in_life; # 创建app专属数据库
+GRANT ALL PRIVILEGES ON DATABASE read_in_life to read_in_life; # 授全权
+```
+
+## Redis 服务部署 redis
+```
+
 ```

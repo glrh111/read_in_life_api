@@ -1,17 +1,11 @@
 #!/bin/bash
 PREFIX=$(cd "$(dirname "$0")"; pwd)
-BASE=$PREFIX/../..
+BASE=$PREFIX/read_in_life_api
 
-cd $PREFIX
-echo "import _env;import app.$(basename $PREFIX).misc.config" > $BASE/solo/_app_config_.py
 cd $BASE
-python $BASE/app.py
 if [ "$1" = "serve" ]; then
     echo "starting...."
-    exec python -u $BASE/solo/web/boot/serve.py
-elif [ "$1" = "gedis" ]; then
-    echo "starting gedis-subscriber ... .. ."
-    exec python -u $PREFIX/gedis-subscriber/worker.py
+    exec python -u $BASE/lib/serve/serve.py
 else
     exec "$@"
 fi
