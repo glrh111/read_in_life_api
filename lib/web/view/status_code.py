@@ -95,6 +95,10 @@ class STATUS_CODE:
         code = 1014
         msg = "Action unknown"
 
+    class RegisterInfoNotSatisfy:
+        code = 10151
+        msg = "not enough register info"
+
     class PHONE_ALREADY_REGISTED:
         code = 1015
         msg = "Phone already registed"

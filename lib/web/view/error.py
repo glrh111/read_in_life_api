@@ -35,3 +35,10 @@ class BadArgument(DictError):
     def __init__(self, msg=''):
         self.code = STATUS_CODE.BAD_ARGUMENT.code
         self.message = "%s  %s" % (STATUS_CODE.BAD_ARGUMENT.msg, msg)
+
+
+class RegisterInfoNotSatisfy(DictError):
+    """login """
+    def __init__(self, msg=''):
+        self.code = STATUS_CODE.RegisterInfoNotSatisfy.code
+        self.message = "%s  %s" % (STATUS_CODE.RegisterInfoNotSatisfy.msg, msg)

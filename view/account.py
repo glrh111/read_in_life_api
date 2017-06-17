@@ -3,9 +3,14 @@
 
 
 """
+登录系统:
+登录方式: 手机号phone, 用户名, 第三方登录: username. 这三者都不许重复
+如果是第三方登录: 存储openid到另一个表, 然后生成这里的相关信息.
+
 register: 注册. 得区分下从哪里注册. 小程序 or 网页
 log_in: 登录
 log_out: 退出登录 清理session
+
 """
 
 from lib.web.route import Route
@@ -29,9 +34,13 @@ class Ping(JsonQueryView, LoginView):
         })
 
 @account_route('/register')
-class Register(RequestHandler):
+class Register(JsonPostView):
     def post(self):
-        self.finish('pong from ping.ping')
+        """nickname, password"""
+
+        self.finish({
+
+        })
 
 
 @account_route('/log_in')

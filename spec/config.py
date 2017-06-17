@@ -6,6 +6,7 @@ class Default:
     DEBUG = True
     PORT = 8000
     SIGNATURE_SECRET = 'iajfiseng,fuckyou'
+    PASSWORD_SECRET = '@%23jsnfe*>,<|ekjsnfegf(`'
 
     SESSION_EXPIRE = 100  # 100 day
 
@@ -43,6 +44,7 @@ class Production(Default):
         'db': 0,
         'password': ''
     }
+    DEBUG = False
 
 class UnitTesting(Default):
     """for unit_testing"""

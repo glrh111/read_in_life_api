@@ -19,7 +19,7 @@ RUN useradd -ms /bin/bash runtime && echo "runtime:wocao" | chpasswd && adduser 
 
 ADD ./requirements.txt /home/runtime/requirement.txt
 
-RUN pip install -r /home/runtime/requirement.txt
+RUN pip install -i http://pypi.douban.com/simple/ -r /home/runtime/requirement.txt
 
 ADD ./entrypoint /home/runtime/entrypoint
 
