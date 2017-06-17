@@ -37,7 +37,12 @@ class Production(Default):
     """for production"""
     HOST = 'glrh11.com'
     SQL_SERVER_URL = 'postgresql://read_in_life:wocao@postgres/read_in_life'
-
+    REDIS_CONFIG = {
+        'host': 'redis',
+        'port': 6379,
+        'db': 0,
+        'password': ''
+    }
 
 class UnitTesting(Default):
     """for unit_testing"""
