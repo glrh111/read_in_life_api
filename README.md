@@ -99,3 +99,25 @@ user = User(**{
 sql_session.add(user)
 sql_session.commit()
 ```
+
+3. 数据库migrate. 使用alembic
+
+原始命令
+```
+# 创建迁移脚本
+alembic revision --autogenerate -m "do test"
+# 迁移
+alembic upgrade head
+```
+
+后来想在服务启动的时候, 均执行迁移任务, 大体流程如下:
+0. 添加Model进入env模块(手动搞);下面三步写脚本搞.
+1. 删除所有迁移脚本;
+2. 生成迁移脚本;
+3. 迁移
+
+```
+1. 如果加入新表, 将新表的model加入 lib.serve.migration_env 里边, 如下
+   from model import Role
+2. 这样, 启动服务的时候, 会运行 lib.serve.migrate 脚本, 自动执行数据库迁移
+```

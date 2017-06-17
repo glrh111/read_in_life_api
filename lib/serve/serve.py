@@ -15,7 +15,8 @@ from create_app import create_app
 
 import lib.web.model.sql_db
 
-from model.user import User
+# migrate
+import migrate
 
 # run
 def run_server():

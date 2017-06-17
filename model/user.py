@@ -7,6 +7,10 @@ class User(BaseModel):
 
     user_id = Column(Integer, primary_key=True)
     nickname = Column(String)
+    email = Column(String)
+    heihei = Column(String)
+    wocaonidayue = Column(Integer)
+
 
     def base_info(self):
         return {
