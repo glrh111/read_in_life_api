@@ -12,6 +12,7 @@ from tornado import escape
 from tornado.httpclient import HTTPError
 
 from lib.serve.config import app_config
+from lib.web.model.sql_db import SQL_Session
 
 def json_encode(value):
     """JSON-encodes the given Python object."""
@@ -76,6 +77,11 @@ RequestHandler.write_error = write_error
 
 
 class BaseView(RequestHandler):
+
+    def prepare(self):
+        super(BaseView, self).prepare()
+        SQL_Session()
+
     def _execute(self, transforms, *args, **kwargs):
         """Executes this request with the given output transforms."""
         self._transforms = transforms
@@ -94,3 +100,7 @@ class BaseView(RequestHandler):
                     self.finish()
         except Exception, e:
             self._handle_request_exception(e)
+
+    def finish(self, chunk=None):
+        SQL_Session.remove()
+        super(BaseView, self).finish(chunk)

@@ -19,15 +19,17 @@ from lib.web.view.jsonview import JsonQueryView, JsonPostView
 from lib.web.view.userview import LoginView, UserView
 
 from lib.web.model.redis_db import redis
-from lib.web.model.sql_db import sql_session
+from lib.web.model.sql_db import SQL_Session
 from model.user import User
 from lib.web.view.error import BadArgument
 
 account_route = Route(prefix='/account')
 
 @account_route('/ping')
-class Ping(JsonQueryView, LoginView):
+class Ping(JsonQueryView):
     def get(self):
+
+        print 'ping.ping', User.find_one()
 
         self.render({
             'wocao': '挺成功' + redis.get('wocao')

@@ -1,5 +1,5 @@
 
-from lib.web.model.sql_db import sql_session, BaseModel
+from lib.web.model.sql_db import SQL_Session, BaseModel
 from sqlalchemy import Column, Integer, ForeignKey, String
 
 

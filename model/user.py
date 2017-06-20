@@ -1,7 +1,7 @@
 
 import hashlib
 
-from lib.web.model.sql_db import sql_session, BaseModel
+from lib.web.model.sql_db import SQL_Session, BaseModel
 from sqlalchemy import Column, Integer, ForeignKey, String
 
 from lib.serve.config import app_config
@@ -32,24 +32,29 @@ class User(BaseModel):
 
     @classmethod
     def _is_password_available(cls, password):
-        return True
+        if not isinstance(password, str):
+            return False
+        return bool(password)
 
-    def modify_password(self, new_password):
+    @classmethod
+    def modify_password(cls, user, new_password):
         """False True"""
-        if not User._is_password_available(new_password):
+        if not cls._is_password_available(new_password):
             return False
 
-        pass
+        user.password = cls.encrypt_pwd(new_password)
+        SQL_Session().commit()
 
     @classmethod
     def encrypt_pwd(cls, password):
-        m = hashlib.md5(app_config.SECRET)
+        m = hashlib.md5(app_config.PASSWORD_SECRET)
         m.update(password)
         password = m.hexdigest()
         return password
 
-    def verify_user(self, password):
-        return True
+    @classmethod
+    def verify_user(cls, user, password):
+        return user.password == cls.encrypt_pwd(password)
 
     def base_info(self):
         return {
