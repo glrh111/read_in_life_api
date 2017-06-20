@@ -17,7 +17,10 @@ engine = create_engine(app_config.SQL_SERVER_URL)
 session_factory = sessionmaker(bind=engine)
 
 # sql_session = SQLSession()
+# when to use it , just SQL_Session() to get the save session during
+# a request's lifecycle
 SQL_Session = scoped_session(session_factory)
+
 
 # create base for use
 class Base(object):
@@ -30,8 +33,6 @@ class Base(object):
     def find_one(cls, spec=None):
         spec = spec or {}
 
-        print SQL_Session()
-
         query = SQL_Session().query(cls)
         for attr, value in spec.items():
             query = query.filter(
@@ -41,6 +42,7 @@ class Base(object):
         return result or None
 
     def save(self):
+        """save change"""
         pass
 
 

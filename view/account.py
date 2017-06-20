@@ -12,6 +12,9 @@ log_in: 登录
 log_out: 退出登录 清理session
 
 """
+import time
+
+from tornado.web import gen
 
 from lib.web.route import Route
 from tornado.web import RequestHandler
@@ -25,15 +28,27 @@ from lib.web.view.error import BadArgument
 
 account_route = Route(prefix='/account')
 
+@gen.coroutine
+def wocao(xiuxi):
+    gen.sleep(xiuxi)
+
 @account_route('/ping')
 class Ping(JsonQueryView):
+
+    @gen.coroutine
     def get(self):
+
+        xiuxi = self.query.xiuxi
+        if xiuxi:
+            yield wocao(int(xiuxi))
 
         print 'ping.ping', User.find_one()
 
         self.render({
             'wocao': '挺成功' + redis.get('wocao')
         })
+
+
 
 @account_route('/register')
 class Register(JsonPostView):
