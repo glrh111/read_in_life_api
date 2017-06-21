@@ -8,7 +8,7 @@
 如果是第三方登录: 存储openid到另一个表, 然后生成这里的相关信息.
 
 register: 注册. 得区分下从哪里注册. 小程序 or 网页
-log_in: 登录
+log_in:  登录
 log_out: 退出登录 清理session
 
 """
@@ -20,11 +20,13 @@ from lib.web.route import Route
 from tornado.web import RequestHandler
 from lib.web.view.jsonview import JsonQueryView, JsonPostView
 from lib.web.view.userview import LoginView, UserView
+from lib.web.view.error import RegisterInfoNotSatisfy
 
 from lib.web.model.redis_db import redis
 from lib.web.model.sql_db import SQL_Session
 from model.user import User
 from lib.web.view.error import BadArgument
+from controller.account import AccountController
 
 account_route = Route(prefix='/account')
 
@@ -33,7 +35,7 @@ def wocao(xiuxi):
     gen.sleep(xiuxi)
 
 @account_route('/ping')
-class Ping(JsonQueryView):
+class Ping(JsonQueryView, LoginView):
     """just for test"""
     @gen.coroutine
     def get(self):
@@ -51,34 +53,35 @@ class Ping(JsonQueryView):
 
 
 @account_route('/register')
-class Register(JsonPostView):
+class Register(JsonPostView, UserView):
+    """receive: 1. 任选一项 phone + country_code, username, email,
+                2. 密码 password"""
     def post(self):
         """nickname, password"""
+        print self.json, type(self.json), 'self.json'
+
+        user = AccountController.register_user(self.json)
+
+        self.login(user)
 
         self.finish({
-
+            'user': user.base_info
         })
 
 
 @account_route('/log_in')
-class LogIn(UserView, JsonPostView):
+class LogIn(JsonPostView, UserView):
     def post(self):
-        user_id = self.json.user_id
-        if not user_id:
-            raise BadArgument('user_id is essential.')
+        user = AccountController.login_user_from_web(self.json)
 
-        if isinstance(user_id, str):
-            if not(user_id.isdigit()):
-                raise BadArgument('user_id should be digit.')
-
-        user = User.find_one({'user_id': int(user_id)})
         if user:
             self.login(user)
-            self.render({
-                'user': user.base_info()
+            self.finish({
+                'user': user.base_info
             })
         else:
-            self.render({})
+            # else is not nessacerry
+            self.finish({})
 
 
 @account_route('/log_out')

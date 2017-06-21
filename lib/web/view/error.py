@@ -41,4 +41,17 @@ class RegisterInfoNotSatisfy(DictError):
     """login """
     def __init__(self, msg=''):
         self.code = STATUS_CODE.RegisterInfoNotSatisfy.code
-        self.message = "%s  %s" % (STATUS_CODE.RegisterInfoNotSatisfy.msg, msg)
+        self.message = "%s %s" % (STATUS_CODE.RegisterInfoNotSatisfy.msg, msg)
+
+
+class LoginInfoNotSatisfy(DictError):
+
+    def __init__(self, msg):
+        self.code = STATUS_CODE.LoginInfoNotSatisfy.code
+        self.message = "%s %s" % (STATUS_CODE.LoginInfoNotSatisfy.msg, msg)
+
+
+class PasswordNotMatch(DictError):
+    def __init__(self, msg):
+        self.code = STATUS_CODE.PASSWORD_NOT_MATCH.code
+        self.message = "%s %s" % (STATUS_CODE.PASSWORD_NOT_MATCH.msg, msg)

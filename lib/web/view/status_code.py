@@ -97,7 +97,11 @@ class STATUS_CODE:
 
     class RegisterInfoNotSatisfy:
         code = 10151
-        msg = "not enough register info"
+        msg = "register error: "
+
+    class LoginInfoNotSatisfy:
+        code = 10152
+        msg = "login error: "
 
     class PHONE_ALREADY_REGISTED:
         code = 1015

@@ -4,6 +4,9 @@ http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html
 
 DML refer to:
 http://docs.sqlalchemy.org/en/latest/core/dml.html
+
+query API:
+http://docs.sqlalchemy.org/en/latest/orm/query.html
 """
 
 from functools import wraps
@@ -34,14 +37,14 @@ class Base(object):
 
     @classmethod
     def find_one(cls, spec=None):
+        """"""
         spec = spec or {}
+        # for attr, value in spec.items():
+        #     query = query.filter(
+        #         getattr(cls, attr) == value
+        #     )
+        result = SQL_Session().query(cls).filter_by(**spec).first()
 
-        query = SQL_Session().query(cls)
-        for attr, value in spec.items():
-            query = query.filter(
-                getattr(cls, attr) == value
-            )
-        result = query.first()
         return result or None
 
     @classmethod
@@ -49,10 +52,26 @@ class Base(object):
         """find and modify"""
         pass
 
+    @classmethod
+    def delete_spec(cls, spec=None, multi=False):
+        """if multi==False, just delete one;
+           or delete all that match spec
+           refer to:
+           https://stackoverflow.com/questions/27158573/how-to-delete-a-record-by-id-in-flask-sqlalchemy
+        """
+        spec = spec or {}
+        if multi:
+            SQL_Session().query(cls).filter_by(**spec).delete()
+            SQL_Session().commit()
+        else:
+            record = cls.find_one(spec)
+            if record:
+                record.delete()
+
     def delete(self):
         """delete a record"""
-
-        pass
+        SQL_Session().delete(self)
+        SQL_Session().commit()
 
     def save(self):
         """update ever changes or add new record"""
@@ -60,6 +79,11 @@ class Base(object):
         session.add(self)  # if its a new record, should add.
         session.commit()
         return self
+
+    @classmethod
+    def record_count(cls, spec=None):
+        spec = spec or {}
+        return SQL_Session().query(cls).filter_by(**spec).count()
 
 
 BaseModel = declarative_base(cls=Base)

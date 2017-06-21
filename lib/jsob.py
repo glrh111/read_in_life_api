@@ -5,6 +5,9 @@ from yajl import dumps
 
 class JsOb(object):
 
+    def get(self, field, default=''):
+        return getattr(self, field, default)
+
     def __init__(self, *args, **kwds):
         for i in args:
             self.__dict__.update(args)

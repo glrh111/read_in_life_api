@@ -10,13 +10,13 @@ import prepare
 # config: read config
 from config import app_config
 
+# migrate
+import migrate
+
 # create_app: collect route
 from create_app import create_app
 
 import lib.web.model.sql_db
-
-# migrate
-import migrate
 
 # run
 def run_server():

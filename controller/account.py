@@ -1,8 +1,10 @@
 #! /usr/bin/env python
 # coding: utf-8
 
-from lib.web.view.error import RegisterInfoNotSatisfy
+from lib.web.view.error import RegisterInfoNotSatisfy, LoginInfoNotSatisfy,\
+    PasswordNotMatch
 from model.user import User
+
 
 class AccountController(object):
 
@@ -12,7 +14,18 @@ class AccountController(object):
         receive: 1. 任选一项 phone + country_code, username, email,
                  2. 密码 password
         """
-        # 1. 判断注册方式
+        # translate json_info to dict
+        register_info, password = User.if_register_info_available_for_web(json_info)
+
+        user = User.register_user(register_info, password)
+        if user is None:
+            raise RegisterInfoNotSatisfy('something bad occur(db transaction error) when registering')
+
+        return user
+
+    @classmethod
+    def login_user_from_web(cls, json_info):
+
         value, field = [''] * 2
         for field in [
             'phone', 'username', 'email'
@@ -22,33 +35,32 @@ class AccountController(object):
                 break
 
         if not value:
-            raise RegisterInfoNotSatisfy()
+            raise LoginInfoNotSatisfy('need log in info')
 
-        # 2. 判断注册字段是否可用.
-        if 'phone' == field:
-            if json_info.get('country_code'):
-                if not User.if_register_field_available({
-                    'phone': value,
-                    'country_code': json_info.get('country_code')
-                }):
-                    raise RegisterInfoNotSatisfy('this phone [{}:{}] already be registered is essential'.format(
-                        json_info.get('country_code'), value
-                    ))
-            else:
-                raise RegisterInfoNotSatisfy('country_code is essential')
-
-        if not User.if_register_field_available({
+        login_info = {
             field: value
-        }):
-            raise RegisterInfoNotSatisfy('this {} already be registered is essential')
+        }
 
-        # 3. 实际注册步骤 do register
+        if 'phone' == field:
+            if not json_info.get('country_code'):
+                raise LoginInfoNotSatisfy('country_code is essential')
 
+            login_info.update({
+                'country_code': json_info.get('country_code')
+            })
 
+        # find user via login_info
+        user = User.find_one(login_info)
 
+        password = json_info.get('password')
 
+        if not password:
+            raise LoginInfoNotSatisfy('password is essential')
 
+        if not user:
+            raise LoginInfoNotSatisfy('could not find user by your info')
 
-        pass
-
-    pass
+        if User.verify_user(user, password):
+            return user
+        else:
+            raise PasswordNotMatch()
