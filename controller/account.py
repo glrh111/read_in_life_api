@@ -24,10 +24,26 @@ class AccountController(object):
         if not value:
             raise RegisterInfoNotSatisfy()
 
-        if 'phone' == field and (not json_info.get('country_code')):
-            raise RegisterInfoNotSatisfy('country_code is essential')
+        # 2. 判断注册字段是否可用.
+        if 'phone' == field:
+            if json_info.get('country_code'):
+                if not User.if_register_field_available({
+                    'phone': value,
+                    'country_code': json_info.get('country_code')
+                }):
+                    raise RegisterInfoNotSatisfy('this phone [{}:{}] already be registered is essential'.format(
+                        json_info.get('country_code'), value
+                    ))
+            else:
+                raise RegisterInfoNotSatisfy('country_code is essential')
 
-        # 2. 判断是否有用户使用同名字段.
+        if not User.if_register_field_available({
+            field: value
+        }):
+            raise RegisterInfoNotSatisfy('this {} already be registered is essential')
+
+        # 3. 实际注册步骤 do register
+
 
 
 

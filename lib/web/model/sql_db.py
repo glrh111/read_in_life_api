@@ -1,6 +1,9 @@
 """
 refer to:
 http://docs.sqlalchemy.org/en/latest/orm/extensions/declarative/mixins.html
+
+DML refer to:
+http://docs.sqlalchemy.org/en/latest/core/dml.html
 """
 
 from functools import wraps
@@ -41,9 +44,22 @@ class Base(object):
         result = query.first()
         return result or None
 
-    def save(self):
-        """save change"""
+    @classmethod
+    def find_and_modify(cls, spec=None, upsert=False, multi=False, new=True, update=None):
+        """find and modify"""
         pass
+
+    def delete(self):
+        """delete a record"""
+
+        pass
+
+    def save(self):
+        """update ever changes or add new record"""
+        session = SQL_Session()
+        session.add(self)  # if its a new record, should add.
+        session.commit()
+        return self
 
 
 BaseModel = declarative_base(cls=Base)

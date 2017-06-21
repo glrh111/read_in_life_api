@@ -34,7 +34,7 @@ def wocao(xiuxi):
 
 @account_route('/ping')
 class Ping(JsonQueryView):
-
+    """just for test"""
     @gen.coroutine
     def get(self):
 

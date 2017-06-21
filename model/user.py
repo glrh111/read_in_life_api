@@ -8,7 +8,7 @@ from lib.serve.config import app_config
 
 class User(BaseModel):
 
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, primary_key=True)  # do not set this by hand
 
     # could login via those three field
     country_code = Column(String, default='')
@@ -30,6 +30,18 @@ class User(BaseModel):
     ctime = Column(Integer)
     last_login_time = Column(Integer)
 
+    @property
+    def can_login(self):
+        """if this user is desabled"""
+        return True
+
+    def base_info(self):
+        return {
+            'user_id': self.user_id,
+            'nickname': self.nickname,
+            'password': self.password
+        }
+
     @classmethod
     def _is_password_available(cls, password):
         if not isinstance(password, str):
@@ -41,9 +53,8 @@ class User(BaseModel):
         """False True"""
         if not cls._is_password_available(new_password):
             return False
-
         user.password = cls.encrypt_pwd(new_password)
-        SQL_Session().commit()
+        user.save()
 
     @classmethod
     def encrypt_pwd(cls, password):
@@ -56,27 +67,37 @@ class User(BaseModel):
     def verify_user(cls, user, password):
         return user.password == cls.encrypt_pwd(password)
 
-    def base_info(self):
-        return {
-            'user_id': self.user_id,
-            'nickname': self.nickname
-        }
-
-    @property
-    def can_login(self):
-        """if this user is desabled"""
-        return True
+    @classmethod
+    def if_register_field_available(cls, spec):
+        """add new user. its a transaction
+           spec is like this:
+           {phone: wocao, country: nidaye}
+        """
+        return not bool(cls.find_one(spec))
 
     @classmethod
-    def if_register_field_available(cls, register_info):
-        """register_info: dict"""
+    def register_user(cls, spec):
+        pass
         pass
 
-    @classmethod
-    def register_user(cls):
-        """add new user. its a transaction"""
-        pass
 
+# modify a password
+print 'in user.model'
+user = User.find_one({'user_id': 1})
+
+print user.base_info()
+
+User.modify_password(user, 'wocaonidaye')
+user2 = User.find_one({'user_id': 1})
+print user2.base_info()
+
+print User.verify_user(user2, 'niday2e')
+
+User(**{
+    'nickname': 'hahah'
+}).save()
+
+print User.find_one({'nickname': 'hahah'}).base_info()
 
 
 
