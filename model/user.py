@@ -47,6 +47,7 @@ class User(BaseModel):
 
     @password.setter
     def password(self, value):
+        """do not commit hear"""
         self.password_hash = User.encrypt_pwd(value)
 
     @property
