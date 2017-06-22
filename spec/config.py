@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 # coding: utf-8
 
+import os
+
 
 class Default:
     DEBUG = True
@@ -22,6 +24,11 @@ class Default:
 
     # SQL server config
     SQL_SERVER_URL = 'postgresql://read_in_life:wocao@172.17.0.5/read_in_life'
+
+    # weapp
+    WEAPP_APPID = os.getenv('WEAPP_APPID')
+    WEAPP_SECRET = os.getenv('WEAPP_SECRET')
+    WEAPP_JSCODE2OPENID = 'https://api.weixin.qq.com/sns/jscode2session'
 
 
 class Development(Default):

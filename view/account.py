@@ -26,7 +26,7 @@ from lib.web.model.redis_db import redis
 from lib.web.model.sql_db import SQL_Session
 from model.user import User
 from lib.web.view.error import BadArgument
-from controller.account import AccountController
+from controller.account import AccountController, LoginType
 
 account_route = Route(prefix='/account')
 
@@ -72,16 +72,29 @@ class Register(JsonPostView, UserView):
 @account_route('/log_in')
 class LogIn(JsonPostView, UserView):
     def post(self):
-        user = AccountController.login_user_from_web(self.json)
+
+        login_type = self.json.login_type
+
+        if not login_type:
+            raise BadArgument('login_type is essential')
+
+        login_type = int(login_type)
+
+        f = AccountController.get_login_handler(login_type)
+
+        user, merged_info = f(self.json)
 
         if user:
             self.login(user)
-            self.finish({
-                'user': user.base_info
-            })
-        else:
-            # else is not nessacerry
-            self.finish({})
+
+        self.render(merged_info)
+
+
+@account_route('/associate')
+class Associate(JsonPostView):
+
+    def post(self):
+        pass
 
 
 @account_route('/log_out')

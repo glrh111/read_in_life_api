@@ -17,15 +17,12 @@ class User(BaseModel):
     user_id = Column(Integer, primary_key=True)  # do not set this by hand
 
     # could login via those three field
-    country_code = Column(String, default='')
-    phone = Column(String, default='')
     username = Column(String, default='')
-    email = Column(String, default='')
-
     password_hash = Column(String)
 
     # user info
-    nickname = Column(String)
+    email = Column(String, default='')
+    penname = Column(String)
     avatar = Column(String)    # url from qiniu
     motto = Column(String)     # one sentence introduction
     brief_introduction = Column(String) # introduction
