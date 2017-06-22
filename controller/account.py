@@ -132,18 +132,27 @@ class AccountController(object):
         ## TODO: save session_key to redis.
         return None, { 'code': 2, 'openid': openid_info.get('openid') }
 
-
     @classmethod
-    def check_username_available(cls, username):
-        # if username available
-        username_available, username_msg = check_field_available(username, [
+    def check_username_available_by_form(cls, username):
+        # username能否被当作username
+        return check_field_available(username, [
             validator_f_str_min_length(1),
             validator_str_is_number_or_a_to_z
         ])
-        if not username_available:
-            raise RegisterInfoNotSatisfy('[{}]: {}'.format(username, msg))
-        pass
 
+    @classmethod
+    def check_password_available_by_form(cls, password):
+        # password能否被当作password
+        return check_field_available(password, [
+            validator_f_str_min_length(3),
+            validator_str_is_number_or_a_to_z_or_punctuation
+        ])
+
+    @classmethod
+    def check_username_have_ever_been_used(cls, username):
+        # 该用户名是否已经存在在本平台
+        spec = { 'username': username }
+        return bool(User.find_one(spec))
 
     @classmethod
     def associate_user(cls, json_info):
@@ -156,9 +165,47 @@ class AccountController(object):
         if not ( stage and username and platform and openid ):
             raise BadArgument('stage, username, platform, openid is essential')
 
+        # check platform
+        stage = int(stage)
+        platform = int(platform)
+        if platform not in PLATFORM.values():
+            raise BadArgument('platform [{}] not available.'.format(platform))
+
         # check username
+        username_available, username_msg = cls.check_username_available_by_form(username)
+        if not username_available:
+            raise LoginInfoNotSatisfy('[{}]: {}'.format(username, username_msg))
 
         # stage == 1
+        if 1 == stage:
+            # 若为新用户，通知weapp进入stage=2
+            # 若为老用户，通知weapp进入stage=3
+            user = cls.check_username_have_ever_been_used(username)
+            if user:
+                new_stage = 3
+            else:
+                new_stage = 2
+            json_info.update({
+                'code': 1,
+                'stage': new_stage,
+            })
+            return json_info
+        elif 2 == stage:
+            # 新用户。设置密码。建立用户记录；建立account记录.
+            password = json_info.get('password')
+            password_available, password_msg = cls.check_password_available_by_form(password)
+            if not password_available:
+                raise LoginInfoNotSatisfy('[{}]: {}'.format(username, username_msg))
+            # add user record
+            # add account record
+        elif 3 == stage:
+            # 老用户。查看是否已经关联；
+            #      若没有关联，验证密码，进行关联；建立account记录.
+            #      若已经关联，提示用户名不可用。
+            pass
+        else:
+            raise BadArgument('stage [{}] not available.'.format(stage))
+
 
 
         pass

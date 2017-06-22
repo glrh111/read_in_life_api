@@ -8,6 +8,9 @@ class JsOb(object):
     def get(self, field, default=''):
         return getattr(self, field, default)
 
+    def values(self):
+        return self.__dict__.values()
+
     def __init__(self, *args, **kwds):
         for i in args:
             self.__dict__.update(args)
@@ -56,10 +59,17 @@ class StripJsOb(JsOb):
                         d[k] = _v
 
 if __name__ == '__main__':
-    o = JsOb(a='adf')
-    print o
-    for k, v in o:
-        print k, v
-
-    print str(o)
-    print "%s" % o
+    # o = JsOb(a='adf')
+    # print o
+    # for k, v in o:
+    #     print k, v
+    #
+    # print str(o)
+    # print "%s" %
+    PLATFORM = JsOb(dict(
+        WECHAT=1,
+        WEAPP=2
+    ))
+    print PLATFORM
+    for palt in PLATFORM:
+        print palt
