@@ -12,7 +12,6 @@ from lib.web.view.error import RegisterInfoNotSatisfy
 from lib.helpers import timestamp_by_13
 
 
-
 class User(BaseModel):
 
     user_id = Column(Integer, primary_key=True)  # do not set this by hand
@@ -31,7 +30,7 @@ class User(BaseModel):
 
     # register and login info
     ## time is 13 timestamp, the last bit is millisecond
-    ctime = Column(BIGINT, default=)
+    ctime = Column(BIGINT, default=timestamp_by_13)
     last_login_time = Column(BIGINT)
 
     @property
