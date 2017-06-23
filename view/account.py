@@ -58,9 +58,11 @@ class Register(JsonPostView, UserView):
                 2. 密码 password"""
     def post(self):
         """nickname, password"""
-        print self.json, type(self.json), 'self.json'
 
-        user = AccountController.register_user(self.json)
+        username = str(self.json.username or '')
+        password = str(self.json.password or '')
+
+        user = AccountController.register_user(username, password)
 
         self.login(user)
 
@@ -72,7 +74,13 @@ class Register(JsonPostView, UserView):
 @account_route('/log_in')
 class LogIn(JsonPostView, UserView):
     def post(self):
+        """1: web 2: 3rd
 
+        return :
+           code: 1, login successfully
+           code: 2, need associate
+           code: other, error accur
+        """
         login_type = self.json.login_type
 
         if not login_type:
@@ -87,14 +95,28 @@ class LogIn(JsonPostView, UserView):
         if user:
             self.login(user)
 
-        self.render(merged_info)
+
+
+        self.finish(merged_info)
 
 
 @account_route('/associate')
-class Associate(JsonPostView):
+class Associate(JsonPostView, UserView):
 
     def post(self):
-        pass
+        """stage: 1
+        :return:
+        """
+        user, info = AccountController.associate_user(
+            self.json
+        )
+
+        if user:
+            self.login(user)
+
+        print info
+
+        self.finish(info)
 
 
 @account_route('/log_out')

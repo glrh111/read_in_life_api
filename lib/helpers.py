@@ -4,7 +4,7 @@
 import os
 import sys
 import string
-
+import time
 
 def get_root_path():
     dirname = os.path.dirname(__file__)
@@ -64,6 +64,10 @@ def check_field_available(value, validator_list):
             break
 
     return available, msg if not available else ''
+
+
+def timestamp_by_13():
+    return int(time.time() * 1000)
 
 
 if __name__ == '__main__':

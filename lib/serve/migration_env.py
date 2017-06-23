@@ -20,6 +20,7 @@ from lib.serve.config import app_config
 from lib.web.model.sql_db import BaseModel
 from model.user import User
 from model.post import Post
+from model.account import SNSAccount
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

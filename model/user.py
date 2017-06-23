@@ -5,10 +5,11 @@ import hashlib
 import traceback
 
 from lib.web.model.sql_db import SQL_Session, BaseModel
-from sqlalchemy import Column, Integer, ForeignKey, String
+from sqlalchemy import Column, Integer, ForeignKey, String, BIGINT
 
 from lib.serve.config import app_config
 from lib.web.view.error import RegisterInfoNotSatisfy
+from lib.helpers import timestamp_by_13
 
 
 
@@ -30,8 +31,8 @@ class User(BaseModel):
 
     # register and login info
     ## time is 13 timestamp, the last bit is millisecond
-    ctime = Column(Integer)
-    last_login_time = Column(Integer)
+    ctime = Column(BIGINT, default=)
+    last_login_time = Column(BIGINT)
 
     @property
     def can_login(self):
@@ -51,7 +52,7 @@ class User(BaseModel):
     def base_info(self):
         return {
             'user_id': self.user_id,
-            'nickname': self.nickname,
+            'nickname': self.penname,
             'password': self.password_hash
         }
 
@@ -94,10 +95,7 @@ class User(BaseModel):
 
     @classmethod
     def if_register_info_available_for_web(cls, json_info):
-        """rely on `if_register_field_available`
-           and add a level on it.
-
-           :return dict: register info
+        """not userd now
         """
 
         # 1. look for register way
@@ -151,31 +149,26 @@ class User(BaseModel):
         pass
 
     @classmethod
-    def register_user(cls, register_info, password):
+    def add_user(cls, username, password):
         """add new user
         should use transaction
         register_info should only contain the following field:
         email, username, (country_code, phone)
         """
-        filtered_register_info = {}
-        for field in [
-            'phone', 'username', 'email', 'country_code'
-        ]:
-            value = register_info.get(field)
-            if value:
-                filtered_register_info.update({
-                    field: value
-                })
-
         session = SQL_Session()
         return_user = None
+
+        register_info = {
+                'username': username,
+                'password': password
+            }
         try:
-            user = User(**filtered_register_info)
+            user = User(**register_info)
             user.password = password
             session.add(user)
             # if have two records after committing, should also rollback.
-            if cls.record_count(filtered_register_info) > 1:
-                print '记录多于1条, rollback', filtered_register_info
+            if cls.record_count({'username': username}) > 1:
+                print '记录多于1条, rollback', {'username': username}
                 session.rollback()
             else:
                 session.commit()

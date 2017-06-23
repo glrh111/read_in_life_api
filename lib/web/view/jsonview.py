@@ -21,6 +21,7 @@ from lib.serve.config import app_config
 
 
 def write_error(self, status_code, **kwargs):
+    traceback.print_exc()
     self.set_header('Content-Type', 'application/json; charset=UTF-8')
     self.finish(
         {

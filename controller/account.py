@@ -112,10 +112,9 @@ class AccountController(object):
         # get openid
         openid_info = cls.get_openid_by_jscode(js_code)
         if not openid_info:
-            return {
-                'message': 'get openid failed from js_code. try resend js_code or wait some minutes.',
-                'code': 3
-            }
+            raise BadArgument(
+                'get openid failed from js_code[{}]. try resend js_code or wait some minutes.'.format(js_code)
+            )
 
         # try to get user
         user = cls.get_user_by_openid(
@@ -152,7 +151,7 @@ class AccountController(object):
     def check_username_have_ever_been_used(cls, username):
         # 该用户名是否已经存在在本平台
         spec = { 'username': username }
-        return bool(User.find_one(spec))
+        return User.find_one(spec)
 
     @classmethod
     def associate_user(cls, json_info):
@@ -168,6 +167,9 @@ class AccountController(object):
         # check platform
         stage = int(stage)
         platform = int(platform)
+
+        print PLATFORM.values(), PLATFORM, platform
+
         if platform not in PLATFORM.values():
             raise BadArgument('platform [{}] not available.'.format(platform))
 
@@ -176,6 +178,8 @@ class AccountController(object):
         if not username_available:
             raise LoginInfoNotSatisfy('[{}]: {}'.format(username, username_msg))
 
+        user = None
+        new_info = {}
         # stage == 1
         if 1 == stage:
             # 若为新用户，通知weapp进入stage=2
@@ -185,93 +189,96 @@ class AccountController(object):
                 new_stage = 3
             else:
                 new_stage = 2
-            json_info.update({
+            new_info = {
                 'code': 1,
                 'stage': new_stage,
-            })
-            return json_info
+            }
         elif 2 == stage:
             # 新用户。设置密码。建立用户记录；建立account记录.
             password = json_info.get('password')
-            password_available, password_msg = cls.check_password_available_by_form(password)
-            if not password_available:
-                raise LoginInfoNotSatisfy('[{}]: {}'.format(username, username_msg))
-            # add user record
+            user = cls.register_user(username, password)
             # add account record
+            acc = SNSAccount.add_sns_account(
+                user.user_id,
+                openid,
+                platform
+            )
+            if not acc:
+                raise LoginInfoNotSatisfy('[{}]: {}'.format(username, 'the association between user and openid has been created before.'))
+
+            new_info = {
+                'code': 1
+            }
+
         elif 3 == stage:
             # 老用户。查看是否已经关联；
             #      若没有关联，验证密码，进行关联；建立account记录.
             #      若已经关联，提示用户名不可用。
-            pass
+            user = User.find_one({ 'username': username })
+            if not user:
+                LoginInfoNotSatisfy('[{}]: {}'.format(username, 'could not find user by this username.'))
+
+            # 已经关联
+            spec = {
+                'user_id': int(user.user_id),
+                'openid': str(openid),
+                'platform': int(platform)
+            }
+            acc = SNSAccount.find_one(spec)
+
+            # 没有关联
+            if not acc:
+                acc = SNSAccount.add_sns_account(
+                    user.user_id,
+                    openid,
+                    platform
+                )
+                if not acc:
+                    raise LoginInfoNotSatisfy(
+                        '[{}]: {}'.format(username, 'the association between user and openid has been created before.'))
+
+                new_info = {
+                    'code': 1
+                }
+
+            else:
+                LoginInfoNotSatisfy(
+                    '[{}]: {}'.format(username, 'the association between user and openid has been created before.'))
+
         else:
             raise BadArgument('stage [{}] not available.'.format(stage))
 
-
-
-        pass
-
-    @classmethod
-    def register_user(cls, json_info):
-        """
-        receive: 1. 任选一项 phone + country_code, username, email,
-                 2. 密码 password
-        """
-        # translate json_info to dict
-        register_info, password = User.if_register_info_available_for_web(json_info)
-
-        user = User.register_user(register_info, password)
-        if user is None:
-            raise RegisterInfoNotSatisfy('something bad occur(db transaction error) when registering')
-
-        return user
+        json_info.update(new_info)
+        return user, json_info.to_dict()
 
     @classmethod
-    def login_user_from_web(cls, json_info):
+    def register_user(cls, username, password):
+        """"""
+        # check not null
+        if not (username and password):
+            raise LoginInfoNotSatisfy('username and password is essential.')
 
-        value, field = [''] * 2
-        for field in [
-            'phone', 'username', 'email'
-        ]:
-            value = json_info.get(field)
-            if value:
-                break
+        # check username
+        username_available, username_msg = cls.check_username_available_by_form(username)
+        if not username_available:
+            raise LoginInfoNotSatisfy('[{}]: {}'.format(username, username_msg))
 
-        if not value:
-            raise LoginInfoNotSatisfy('need log in info')
+        # check password
+        password_available, password_msg = cls.check_password_available_by_form(password)
+        if not password_available:
+            raise LoginInfoNotSatisfy('[{}]: {}'.format(password, password_msg))
 
-        login_info = {
-            field: value
-        }
-
-        if 'phone' == field:
-            if not json_info.get('country_code'):
-                raise LoginInfoNotSatisfy('country_code is essential')
-
-            login_info.update({
-                'country_code': json_info.get('country_code')
-            })
-
-        # find user via login_info
-        user = User.find_one(login_info)
-
-        password = json_info.get('password')
-
-        if not password:
-            raise LoginInfoNotSatisfy('password is essential')
-
+        # check username if unique
+        user = User.add_user(username, password)
         if not user:
-            raise LoginInfoNotSatisfy('could not find user by your info')
-
-        if User.verify_user(user, password):
-            return user
-        else:
-            raise PasswordNotMatch()
+            raise LoginInfoNotSatisfy('[{}]: {}'.format(username, 'username has been used.'))
+        return user
 
 
 login_handler_dict = {
-        LoginType.WEB: AccountController.login_for_web,
-        LoginType.ThirdGroup: AccountController.login_for_weapp
-    }
+    LoginType.WEB: AccountController.login_for_web,
+    LoginType.ThirdGroup: AccountController.login_for_weapp
+}
 
 
 if __name__ == '__main__':

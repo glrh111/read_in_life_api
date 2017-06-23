@@ -11,9 +11,15 @@ class JsOb(object):
     def values(self):
         return self.__dict__.values()
 
+    def update(self, another_dict):
+        self.__dict__.update(another_dict)
+
+    def to_dict(self):
+        return self.__dict__
+
     def __init__(self, *args, **kwds):
         for i in args:
-            self.__dict__.update(args)
+            self.__dict__.update(i)
         self.__dict__.update(kwds)
 
     def __getattr__(self, name):

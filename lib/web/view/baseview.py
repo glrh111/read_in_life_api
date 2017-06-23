@@ -66,6 +66,8 @@ def write_html_error(self, status_code, **kwargs):
     self.write(html)
 
 def write_error(self, status_code, **kwargs):
+    traceback.print_exc()
+    print 'in here'
     if self.request.headers.get('accept').startswith('application/json'):
         write_json_error(self, status_code, **kwargs)
     else:
