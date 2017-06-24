@@ -33,7 +33,7 @@ class User(BaseModel):
     # register and login info
     ## time is 13 timestamp, the last bit is millisecond
     ctime = Column(BIGINT, default=timestamp_by_13)
-    last_login_time = Column(BIGINT)
+    last_login_time = Column(BIGINT, default=timestamp_by_13)
 
     @property
     def can_login(self):
