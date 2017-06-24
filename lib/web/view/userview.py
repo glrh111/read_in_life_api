@@ -34,6 +34,8 @@ class UserView(BaseView):
     def login(self, user):
         if user.can_login:
             self._session_new(user.user_id)
+            # record login time
+            User.update_last_login_time(user)
         else:
             raise UserDisabled()
 

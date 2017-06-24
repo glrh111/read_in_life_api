@@ -11,6 +11,8 @@ from lib.serve.config import app_config
 from lib.web.view.error import RegisterInfoNotSatisfy
 from lib.helpers import timestamp_by_13
 
+DEFAULT_PENNAME = '佚名'
+
 
 class User(BaseModel):
 
@@ -35,7 +37,7 @@ class User(BaseModel):
 
     @property
     def can_login(self):
-        """if this user is desabled"""
+        """if this user is disabled"""
         return True
 
     @property
@@ -51,8 +53,7 @@ class User(BaseModel):
     def base_info(self):
         return {
             'user_id': self.user_id,
-            'nickname': self.penname,
-            'password': self.password_hash
+            'penname': self.penname or DEFAULT_PENNAME,
         }
 
     @base_info.setter
@@ -177,6 +178,18 @@ class User(BaseModel):
             session.rollback()
 
         return return_user
+
+    @classmethod
+    def update_last_login_time(cls, user):
+        """update last login time"""
+        re = False
+        try:
+            user.last_login_time = timestamp_by_13()
+            SQL_Session().commit()
+            re = True
+        except Exception:
+            SQL_Session().rollback()
+        return re
 
 
 

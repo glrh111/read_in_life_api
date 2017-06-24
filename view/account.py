@@ -47,7 +47,7 @@ class Ping(JsonQueryView, LoginView):
         print 'ping.ping', User.find_one()
 
         self.render({
-            'wocao': '挺成功' + redis.get('wocao')
+            'wocao': '挺成功'
         })
 
 
@@ -64,6 +64,7 @@ class Register(JsonPostView, UserView):
 
         user = AccountController.register_user(username, password)
 
+        # TODO: fix it , this login not working.
         self.login(user)
 
         self.finish({
@@ -120,7 +121,7 @@ class Associate(JsonPostView, UserView):
 
 
 @account_route('/log_out')
-class LogOut(LoginView, JsonPostView):
+class LogOut(JsonPostView, UserView):
     def post(self):
         if self.current_user_id:
             self._session_rm()
