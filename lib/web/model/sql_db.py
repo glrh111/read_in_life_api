@@ -48,9 +48,36 @@ class Base(object):
         return result or None
 
     @classmethod
-    def find_and_modify(cls, spec=None, upsert=False, multi=False, new=True, update=None):
-        """find and modify"""
-        pass
+    def find_and_modify(cls, spec, update, multi=False):
+        """find and modify
+           spec : dict : find specific records to update
+           update : set new value for them
+           multi : if multi, update all that be found; or just update one;
+        return : the first that has been updated
+        """
+        # TODO: test this func
+        result = None
+        session = SQL_Session()
+        if not (update and spec):
+            return result
+        # update
+        if multi:
+            session.query(cls).filter_by(**spec).update(update)
+        else:
+            record = cls.find_one(spec)
+            if record:
+                for key, value in update.items():
+                    setattr(record, key, value)
+            else:
+                return result
+        # commit
+        try:
+            session.commit()
+            result = cls.find_one(spec)
+        except Exception:
+            session.rollback()
+
+        return result
 
     @classmethod
     def delete_spec(cls, spec=None, multi=False):

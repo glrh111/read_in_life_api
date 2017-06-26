@@ -54,11 +54,22 @@ class User(BaseModel):
         return {
             'user_id': self.user_id,
             'penname': self.penname or DEFAULT_PENNAME,
+            'avatar': self.avatar,
+            'motto': self.motto
         }
 
     @base_info.setter
     def base_info(self, value):
         raise ValueError('could not set value to base info')
+
+    @classmethod
+    def get_anonymous_user_base_info(cls):
+        return {
+            'user_id': None,
+            'penname': '匿名用户',
+            'avatar': '',
+            'motto': ''
+        }
 
     @classmethod
     def is_password_available(cls, password):
@@ -190,6 +201,8 @@ class User(BaseModel):
         except Exception:
             SQL_Session().rollback()
         return re
+
+
 
 
 
