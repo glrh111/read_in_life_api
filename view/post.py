@@ -26,7 +26,7 @@ post_route = Route(prefix='/post')
 
 @post_route('/?')
 class AllPost(JsonQueryView, UserView):
-    """just for test"""
+    """all post desc by ctime"""
     def get(self):
         offset = int(self.query.offset or 0)
         limit = int(self.query.limit or 20)
