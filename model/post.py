@@ -180,9 +180,7 @@ class Post(BaseModel):
             }
         )
         if not new_post:
-            print 'in Model.update_content', post_id, post_history, new_post
             return None
-        print 'new_post', new_post
         return new_post
 
     @classmethod

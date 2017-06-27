@@ -64,7 +64,7 @@ class Register(JsonPostView, UserView):
 
         user = AccountController.register_user(username, password)
 
-        # TODO: fix it , this login not working.
+        # TODO: fix it , this login not working sometimes.
         self.login(user)
 
         self.finish({
