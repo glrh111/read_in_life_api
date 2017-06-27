@@ -55,3 +55,15 @@ class PasswordNotMatch(DictError):
     def __init__(self, msg):
         self.code = STATUS_CODE.PASSWORD_NOT_MATCH.code
         self.message = "%s %s" % (STATUS_CODE.PASSWORD_NOT_MATCH.msg, msg)
+
+
+class PostNotFound(DictError):
+    def __init__(self, msg=''):
+        self.code = STATUS_CODE.POST_NOT_FOUND.code
+        self.message = "%s %s" % (STATUS_CODE.POST_NOT_FOUND.msg, msg)
+
+
+class OperationNotPermit(DictError):
+    def __init__(self, msg=''):
+        self.code = STATUS_CODE.OPERATION_NOT_PERMIT.code
+        self.message = "%s %s" % (STATUS_CODE.OPERATION_NOT_PERMIT.msg, msg)

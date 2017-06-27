@@ -442,3 +442,6 @@ class STATUS_CODE:
         code = 15002
         msg  = "Bid failed."
 
+    class POST_NOT_FOUND:
+        code = 15003
+        msg = "post not found or has been deleted"

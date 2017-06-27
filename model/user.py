@@ -11,7 +11,7 @@ from lib.serve.config import app_config
 from lib.web.view.error import RegisterInfoNotSatisfy
 from lib.helpers import timestamp_by_13
 
-DEFAULT_PENNAME = '佚名'
+DEFAULT_PENNAME = u'佚名'
 
 
 class User(BaseModel):
@@ -51,11 +51,14 @@ class User(BaseModel):
 
     @property
     def base_info(self):
+        """"""
+        # TODO: add cache here
         return {
             'user_id': self.user_id,
             'penname': self.penname or DEFAULT_PENNAME,
             'avatar': self.avatar,
-            'motto': self.motto
+            'motto': self.motto,
+            'username': self.username
         }
 
     @base_info.setter

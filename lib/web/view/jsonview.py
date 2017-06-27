@@ -133,6 +133,7 @@ class JsonCommonView(JsonView):
         if not self.request.body:
             return JsOb()
         try:
+            print self.request.body, type(self.request.body)
             return StripJsOb(
                 **yajl.loads(self.request.body.decode('utf-8', 'ignore')))
         except ValueError as e:

@@ -7,8 +7,11 @@ http://docs.sqlalchemy.org/en/latest/core/dml.html
 
 query API:
 http://docs.sqlalchemy.org/en/latest/orm/query.html
-"""
 
+order by example:
+https://stackoverflow.com/questions/15791760/multiple-order-by-sqlalchemy-flask/15792183
+"""
+import traceback
 from functools import wraps
 import sqlalchemy
 from sqlalchemy import create_engine, orm, event, inspect
@@ -34,6 +37,39 @@ class Base(object):
     @declared_attr
     def __tablename__(cls):
         return cls.__name__.lower()
+
+    @classmethod
+    def find(cls, spec=None, offset=None, limit=None, sort=None):
+        """single table find
+           spec: {}
+           start: int: skip amount
+           size: int: data max size
+           sort: list: [('user_id':1), ('kitty_id':-1)] such as that: 1 AESC, 2 DESC
+        TEST SUCCESS! VERY GOOD! by wang li in 2017-06-27
+        """
+        query = SQL_Session().query(cls)
+        # 1. filter
+        if spec:
+            query = query.filter_by(**spec)
+        # 2. sort
+        if sort:
+            sort_list = [] # [ User.user_id.asc(), User.user_id.desc() ]
+            for field, sort_value in sort:
+                temp_info = 'asc' if sort_value >=0 else 'desc'
+                sort_list.append(
+                    getattr(
+                        getattr(cls, field), temp_info
+                    )()
+                )
+            query = query.order_by(*sort_list)
+        # 3. offset
+        if offset >= 0:
+            query = query.offset(offset)
+        # 4. limit
+        if limit >= 0:
+            query = query.limit(limit)
+
+        return query.all()
 
     @classmethod
     def find_one(cls, spec=None):
@@ -75,6 +111,7 @@ class Base(object):
             session.commit()
             result = cls.find_one(spec)
         except Exception:
+            print 'in find and modify', traceback.format_exc()
             session.rollback()
 
         return result
