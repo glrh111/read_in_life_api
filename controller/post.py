@@ -1,16 +1,7 @@
 #! /usr/bin/env python
 # coding: utf-8
 
-import requests
-import json
-
-from lib.web.view.error import OperationNotPermit
-from model.user import User
-from model.account import SNSAccount, PLATFORM
 from model.post import Post
-from lib.serve.config import app_config
-from lib.helpers import check_field_available, validator_f_str_min_length, validator_str_is_number_or_a_to_z_or_punctuation,\
-    validator_str_is_number_or_a_to_z
 
 
 class PostController(object):
@@ -29,7 +20,7 @@ class PostController(object):
         1. 如果是本人, 不用检查权限, 即可返回所有
         2. 如果不是本人, 不对外公开的post不能返回
         """
-        pass
+        return Post.get_post_by_id(post_id)
 
     @classmethod
     def new_post(cls, current_user_id):
@@ -38,13 +29,18 @@ class PostController(object):
         return Post.add_post(current_user_id)
 
     @classmethod
-    def update_content(cls, post_id, content, current_user_id):
+    def update_content(cls, post_id, content):
         """just update content"""
-        post = Post.get_post_by_id(post_id)
+        return Post.update_content(post_id, content)
 
-        if post:
-            # check permission. could not take info out
-            if current_user_id == post.user_id:
-                return Post.update_content(post_id, content)
+    @classmethod
+    def update_permission(cls, post_id, update_info):
+        """available_to_other
+           anonymous_to_other
+           comment_permission
+        """
+        return Post.update_permission(post_id, **update_info)
 
-        raise OperationNotPermit
+    @classmethod
+    def delete_post(cls, post_id):
+        return Post.delete_post(post_id)

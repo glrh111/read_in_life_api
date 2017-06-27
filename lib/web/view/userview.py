@@ -12,7 +12,7 @@ class UserView(BaseView):
     '''
 
     def _session_new(self, user_id):
-        session = Session.new(user_id, app_config.SESSION_EXPIRE)
+        session = Session.new(user_id, app_config.SESSION_EXPIRE*3600*24)
         self.set_cookie('session', session, domain="." + app_config.HOST,
                         expires_days=app_config.SESSION_EXPIRE)
 

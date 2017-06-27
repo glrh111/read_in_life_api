@@ -12,19 +12,12 @@ log_in:  登录
 log_out: 退出登录 清理session
 
 """
-import time
-
-from tornado.web import gen
 
 from lib.web.route import Route
-from tornado.web import RequestHandler
-from lib.web.view.jsonview import JsonQueryView, JsonPostView, JsonCommonView
-from lib.web.view.userview import LoginView, UserView
-from lib.web.view.error import RegisterInfoNotSatisfy
+from lib.web.view.jsonview import JsonQueryView, JsonCommonView
+from lib.web.view.userview import UserView
 
-from lib.web.model.sql_db import SQL_Session
-from model.user import User
-from model.post import Post
+from model.post import Post, check_post_update_permission
 from lib.web.view.error import BadArgument, LoginRequired
 from controller.post import PostController
 
@@ -64,21 +57,17 @@ class OnePost(JsonCommonView, UserView):
     SUPPORTED_METHODS = ('GET', 'PUT', 'DELETE')
 
     def get(self, post_id):
-        start = int(self.query.start or 0)
-        size = int(self.query.size or 0)
-
-        print start, size, post_id
-
+        post = PostController.get_post_by_id(int(post_id))
         self.render({
-            'wocao': '挺成功'
+            'post': post.base_info if post else None
         })
 
+    @check_post_update_permission
     def put(self, post_id):
         """update
         update_type: 1 content
                      2 permission
         """
-        print self.json
 
         if not self.current_user:
             raise LoginRequired
@@ -88,18 +77,40 @@ class OnePost(JsonCommonView, UserView):
             content = self.json.content
             result = PostController.update_content(
                 post_id=post_id,
-                content=content,
-                current_user_id=self.current_user_id
+                content=content
             )
-            self.render({
-                'post': result.base_info
-            })
+
         elif 2 == update_type:
-            pass
+            update_info = {}
+            for update_field in [
+                'available_to_other',
+                'anonymous_to_other',
+                'comment_permission'
+            ]:
+                value = getattr(self.json, update_field)
+                if value not in ['', None]:
+                    update_info.update({
+                        update_field: value
+                    })
+
+            if not update_info:
+                raise BadArgument(
+                    'available_to_other or anonymous_to_other or comment_permission is essential.'
+                )
+
+            result = PostController.update_permission(
+                post_id=post_id,
+                update_info=update_info
+            )
         else:
             raise BadArgument('update_type is essential.')
 
+        self.render({
+            'post': result.base_info
+        })
 
+    @check_post_update_permission
     def delete(self, post_id):
         """logically delete a post"""
-        pass
+        PostController.delete_post(int(post_id))
+        self.render({})

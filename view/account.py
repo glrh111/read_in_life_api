@@ -96,8 +96,6 @@ class LogIn(JsonPostView, UserView):
         if user:
             self.login(user)
 
-
-
         self.finish(merged_info)
 
 

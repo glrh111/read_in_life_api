@@ -1,11 +1,14 @@
 
+import inspect
 from uuid import uuid1
+import functools
 
 from lib.web.model.sql_db import SQL_Session, BaseModel
 from sqlalchemy import Column, Integer, ForeignKey, String, BIGINT, \
     Boolean
 
 from model.user import User
+from lib.web.view.error import OperationNotPermit
 
 from lib.helpers import timestamp_by_13
 from lib.jsob import JsOb
@@ -17,6 +20,24 @@ COMMENT_PERIMISSION = JsOb({
     'ONLY_FOLLOWING': 3,
     'NO_ONE': 4,    # forbidden
 })
+
+
+def check_post_update_permission(f):
+    """only its user_id has update permission"""
+    @functools.wraps(f)
+    def wrapper(*args, **kwargs):
+        func_args = inspect.getcallargs(f, *args, **kwargs)
+        # get post_id and current_user_id from self
+        post_id = int(func_args.get('post_id') or 0)
+        self = func_args.get('self')
+        current_user_id = getattr(self, 'current_user_id')
+        # check permission
+        post = Post.get_post_by_id(post_id)
+        if post and current_user_id and post.user_id == current_user_id:
+            return f(*args, **kwargs)
+        raise OperationNotPermit
+    return wrapper
+
 
 class Post(BaseModel):
 
@@ -38,7 +59,6 @@ class Post(BaseModel):
     @property
     def base_info(self):
         """author_info
-
         :return:
         """
         # not available
@@ -79,12 +99,8 @@ class Post(BaseModel):
         raise AttributeError('content is a read only attribute.')
 
     @classmethod
-    def get_all_post(cls, offset, limit):
+    def _get_all_post(cls, spec, offset, limit):
         """order by utime"""
-        spec = {
-            'deleted': False,
-            'available_to_other': True
-        }
         sort = [('ctime', -1)]
         post_info_list = []
         for post in cls.find(spec, sort=sort, offset=offset, limit=limit):
@@ -92,6 +108,25 @@ class Post(BaseModel):
                 post.base_info
             )
         return post_info_list
+
+    @classmethod
+    def get_all_post(cls, offset, limit):
+        """order by utime"""
+        spec = {
+            'deleted': False,
+            'available_to_other': True
+        }
+        return cls._get_all_post(spec, offset, limit)
+
+    @classmethod
+    def get_all_post_by_user_id(cls, user_id, offset, limit):
+        """user's post"""
+        spec = {
+            'deleted': False,
+            'available_to_other': True,
+            'user_id': user_id
+        }
+        return cls._get_all_post(spec, offset, limit)
 
     @classmethod
     def get_post_by_id(cls, post_id):
@@ -151,7 +186,7 @@ class Post(BaseModel):
         return new_post
 
     @classmethod
-    def update_post(cls, post_id, **kwargs):
+    def update_permission(cls, post_id, **kwargs):
         """update: content, and permission"""
         default_type_dict = {
             # 'content': str, # remove content here because ...much to say

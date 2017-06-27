@@ -6,8 +6,7 @@ JsonView
     JsonCommonView
 """
 
-import json
-import yajl
+import ujson
 from tornado.web import HTTPError, gen
 import traceback
 import sys
@@ -94,12 +93,12 @@ class JsonView(BaseView):
         callback = self.get_argument('callback', None)
         if callback:
             if type(chunk) is dict:
-                chunk = json.dumps(chunk, ensure_ascii=False)
+                chunk = ujson.dumps(chunk, ensure_ascii=False)
             chunk = '%s(%s)' % (callback, chunk)
         self.set_header('Content-Type', 'application/json; charset=UTF-8')
 
         if isinstance(chunk, dict):
-            super(JsonView, self).finish(json.dumps(chunk, ensure_ascii=False))
+            super(JsonView, self).finish(ujson.dumps(chunk, ensure_ascii=False))
         else:
             super(JsonView, self).finish(chunk)
 
@@ -114,7 +113,7 @@ class JsonPostView(JsonView):
             return JsOb()
         try:
             return StripJsOb(
-                **yajl.loads(self.request.body.decode('utf-8', 'ignore')))
+                **ujson.loads(self.request.body.decode('utf-8', 'ignore')))
         except ValueError as e:
             raise HTTPError(400, reason="%s, may be bad json" % str(e))
 
@@ -133,9 +132,8 @@ class JsonCommonView(JsonView):
         if not self.request.body:
             return JsOb()
         try:
-            print self.request.body, type(self.request.body)
             return StripJsOb(
-                **yajl.loads(self.request.body.decode('utf-8', 'ignore')))
+                **ujson.loads(self.request.body.decode('utf-8', 'ignore')))
         except ValueError as e:
             raise HTTPError(400, reason="%s, may be bad json" % str(e))
 
@@ -150,7 +148,7 @@ class JsonSignatureView(JsonPostView):
     '''
     def prepare(self):
         super(JsonPostView, self).prepare()
-        data = yajl.loads(self.request.body.decode('utf-8', 'ignore'))
+        data = ujson.loads(self.request.body.decode('utf-8', 'ignore'))
         signature = data.pop('signature', None)
         if not app_config.DEBUG and not signature_verify(
                 data,

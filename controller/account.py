@@ -4,8 +4,7 @@
 import requests
 import json
 
-from lib.web.view.error import RegisterInfoNotSatisfy, LoginInfoNotSatisfy,\
-    PasswordNotMatch, BadArgument
+from lib.web.view.error import LoginInfoNotSatisfy, BadArgument
 from model.user import User
 from model.account import SNSAccount, PLATFORM
 from lib.serve.config import app_config
