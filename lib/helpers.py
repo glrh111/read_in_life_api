@@ -5,6 +5,8 @@ import os
 import sys
 import string
 import time
+import re
+
 
 def get_root_path():
     dirname = os.path.dirname(__file__)
@@ -47,6 +49,10 @@ def validator_str_is_number_or_a_to_z(value):
     )(value)
 
 
+def validator_str_is_email(value):
+    return bool(re.match(r'[^@]+@[^@]+\.[^@]+', value)), 'email not valid'
+
+
 def check_field_available(value, validator_list):
     """check field
      usage:
@@ -77,3 +83,5 @@ if __name__ == '__main__':
         validator_f_str_min_length(6),
         validator_f_str_in_sequence('abcd')
     ])
+
+    print check_field_available('glrh11@glrh11.com', [validator_str_is_email])

@@ -58,7 +58,8 @@ class User(BaseModel):
             'penname': self.penname or DEFAULT_PENNAME,
             'avatar': self.avatar,
             'motto': self.motto,
-            'username': self.username
+            'username': self.username,
+            'email': self.email
         }
 
     @base_info.setter
@@ -75,6 +76,10 @@ class User(BaseModel):
         }
 
     @classmethod
+    def get_user_by_id(cls, user_id):
+        return User.find_one({ 'user_id': user_id })
+
+    @classmethod
     def is_password_available(cls, password):
         if not isinstance(password, str):
             return False
@@ -87,6 +92,7 @@ class User(BaseModel):
             return False
         user.password = new_password
         user.save()
+        return True
 
     @classmethod
     def encrypt_pwd(cls, password):
@@ -199,6 +205,18 @@ class User(BaseModel):
         re = False
         try:
             user.last_login_time = timestamp_by_13()
+            SQL_Session().commit()
+            re = True
+        except Exception:
+            SQL_Session().rollback()
+        return re
+
+    @classmethod
+    def update_user_info(cls, user, update_info):
+        re = False
+        try:
+            for key, value in update_info.items():
+                setattr(user, key, value)
             SQL_Session().commit()
             re = True
         except Exception:
