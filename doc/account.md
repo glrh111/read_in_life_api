@@ -69,8 +69,8 @@ next time用户打开小程序, 建议进行如下操作:
 
 请求参数
 
-+ 微信登录: 
-  - 请求参数：login_type==2, platform==1, js_code
++ weapp登录: 
+  - 请求参数：login_type==2, platform==2, js_code
   - 返回字段：
     code: 
       + 1 登录成功；
@@ -82,19 +82,35 @@ next time用户打开小程序, 建议进行如下操作:
   - 返回字段：code：1 登录成功；其他：登录失败。提示用户名不存在或者密码不对。
   
 2. POST /account/associate openid关联账号操作。
-   - 请求参数：platform=1, openid=..., username=..., stage=1
-   - 返回参数：
-     + code: 1 username 可以使用，需要设置密码；
-                    2 username 与以前重复，验证密码可以执行关联;
-                    3 username不规范，不可以使用
-     + username: 返回的时候带上
-     + openid
-   - 请求参数中：
-     + stage=1 携带username 进行进行查询操作
-     + stage=2 设置密码；建立user新纪录，并且关联
-     + stage=3 验证密码; 验证以后，成功关联
    
-   - stage 2 / 3执行之后，如果成功，即可进入登录状态。
+   + stage 2 / 3执行之后，如果成功，即可进入登录状态。
+   
+   + 同一个open_id要确保不能和不同的username关联。
+   
+   按照stage划分请求阶段： 
+   + stage == 1:
+     + 用处：携带username 进行进行查询操作
+     + 请求参数：platform=2, openid=..., username=..., stage=1
+     + 返回参数：
+       + code == 1:
+           + stage==2: username可以使用。需要设置password
+           + stage==4: username以前用过。而且已经关联过weapp账号。
+           + stage==3: username以前用过。但是没有关联过。需要验证密码。
+       + code == 其他：username不可用或者其他错误
+       
+   + stage == 2:
+     + 用处：携带username和password进行绑定操作
+     + 请求参数：platform=2, openid=..., username=..., stage=2， password
+     + 返回参数： 
+       + code==1：成功绑定账户。
+   + stage == 3:
+     + 用处：验证密码
+     + 请求参数：platform=2, openid=..., username=..., stage=2， password
+     + 返回参数：
+       + code==1: 成功关联用户
+       + code==其他：密码不可用。
+   + stage==4:
+     + 用处：没有后续操作。提示用户username不可用。
      
 3. POST /account/log_out 登出接口
 

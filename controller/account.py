@@ -4,7 +4,7 @@
 import requests
 import json
 
-from lib.web.view.error import LoginInfoNotSatisfy, BadArgument
+from lib.web.view.error import LoginInfoNotSatisfy, BadArgument, PasswordNotMatch
 from model.user import User
 from model.account import SNSAccount, PLATFORM
 from lib.serve.config import app_config
@@ -183,9 +183,19 @@ class AccountController(object):
         if 1 == stage:
             # 若为新用户，通知weapp进入stage=2
             # 若为老用户，通知weapp进入stage=3
+            # 若为老用户，但是username已经关联过，通知weapp进入stage=4
             user = cls.check_username_have_ever_been_used(username)
             if user:
-                new_stage = 3
+                spec = {
+                    'user_id': int(user.user_id),
+                    #'openid': str(openid),
+                    'platform': int(platform)
+                }
+                acc = SNSAccount.find_one(spec)
+                if acc:
+                    new_stage = 4
+                else:
+                    new_stage = 3
             else:
                 new_stage = 2
             new_info = {
@@ -210,17 +220,20 @@ class AccountController(object):
             }
 
         elif 3 == stage:
-            # 老用户。查看是否已经关联；
-            #      若没有关联，验证密码，进行关联；建立account记录.
-            #      若已经关联，提示用户名不可用。
+            # 没有与这个平台关联的老用户，验证密码，进行关联；建立account记录.
             user = User.find_one({ 'username': username })
             if not user:
                 LoginInfoNotSatisfy('[{}]: {}'.format(username, 'could not find user by this username.'))
 
-            # 已经关联
+            # check password
+            password = json_info.get('password')
+            if not User.verify_user(user, password):
+                raise PasswordNotMatch
+
+            # 已经关联. 说的是用户名已经和platform关联。
             spec = {
                 'user_id': int(user.user_id),
-                'openid': str(openid),
+                # 'openid': str(openid),
                 'platform': int(platform)
             }
             acc = SNSAccount.find_one(spec)
@@ -243,7 +256,8 @@ class AccountController(object):
             else:
                 LoginInfoNotSatisfy(
                     '[{}]: {}'.format(username, 'the association between user and openid has been created before.'))
-
+        elif 4 == stage:
+            raise BadArgument('stage 4 not available.'.format(stage))
         else:
             raise BadArgument('stage [{}] not available.'.format(stage))
 

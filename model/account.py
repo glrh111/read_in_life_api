@@ -36,9 +36,15 @@ class SNSAccount(BaseModel):
 
     @classmethod
     def add_sns_account(cls, user_id, open_id, platform):
-        """这三个参数确定的信息必须唯一."""
+        """这三个参数确定的信息必须唯一.
+        而且需要保证 openid 和 platform确定的record唯一。因为只能对应同一个账号。
+        """
         info = {
             'user_id': int(user_id),
+            'openid': str(open_id),
+            'platform': int(platform)
+        }
+        info_unique = {
             'openid': str(open_id),
             'platform': int(platform)
         }
@@ -49,7 +55,7 @@ class SNSAccount(BaseModel):
             acc = SNSAccount(**info)
             session.add(acc)
             # if have two records after committing, should also rollback.
-            if cls.record_count(info) > 1:
+            if cls.record_count(info_unique) > 1:
                 print '记录多于1条, rollback', info
                 session.rollback()
             else:
