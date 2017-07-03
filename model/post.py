@@ -34,8 +34,8 @@ def check_post_update_permission(f):
         self = func_args.get('self')
         current_user_id = getattr(self, 'current_user_id')
         # check permission
-        post = Post.get_post_by_id(post_id)
-        if post and current_user_id and post.get('user_id') == current_user_id:
+        post = Post.find_one({'post_id': post_id})
+        if post and current_user_id and post.user_id == current_user_id:
             return f(*args, **kwargs)
         raise OperationNotPermit
     return wrapper
@@ -74,6 +74,7 @@ class Post(BaseModel):
             'content': self.content,
             'title': self.title,
             'abstract': self.abstract,
+            'utime': self.utime
         }
 
     @base_info.setter
