@@ -35,7 +35,7 @@ class AllPost(JsonQueryView, UserView):
         limit = int(self.query.limit or 20)
 
         self.render({
-            'post_list': Post.get_timeline_post(
+            'post_list': PostController.get_timeline_post(
                 offset=offset,
                 limit=limit,
                 observer=self.current_user

@@ -12,6 +12,7 @@ from lib.web.view.error import RegisterInfoNotSatisfy
 from lib.helpers import timestamp_by_13
 
 DEFAULT_PENNAME = u'佚名'
+DEFAULT_AVATAR = 'http://o9hjg7h8u.bkt.clouddn.com/read_in_life_icon.png'
 
 
 class User(BaseModel):
@@ -56,7 +57,7 @@ class User(BaseModel):
         return {
             'user_id': self.user_id,
             'penname': self.penname or DEFAULT_PENNAME,
-            'avatar': self.avatar,
+            'avatar': self.avatar or DEFAULT_AVATAR,
             'motto': self.motto,
             'username': self.username,
             'email': self.email

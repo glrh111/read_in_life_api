@@ -35,7 +35,7 @@ def check_post_update_permission(f):
         current_user_id = getattr(self, 'current_user_id')
         # check permission
         post = Post.get_post_by_id(post_id)
-        if post and current_user_id and post.user_id == current_user_id:
+        if post and current_user_id and post.get('user_id') == current_user_id:
             return f(*args, **kwargs)
         raise OperationNotPermit
     return wrapper
@@ -135,7 +135,7 @@ class Post(BaseModel):
             })
 
             post_info_list.append(
-                post.base_info
+                post_info
             )
         return post_info_list
 
@@ -187,7 +187,7 @@ class Post(BaseModel):
             'deleted': False,
             'available_to_other': True
         }
-        return cls._get_all_post(spec, offset, limit, observer=None)
+        return cls._get_post_list(spec, offset, limit, observer=observer)
 
     @classmethod
     def get_post_by_id(cls, post_id, observer=None):

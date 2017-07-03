@@ -21,7 +21,7 @@ from controller.post import PostController
 user_route = Route(prefix='/user')
 
 
-@user_route('/(?P<user_id>\d+)/post')
+@user_route('/(?P<user_id>\d+)/post/?')
 class AllPostByUser(JsonQueryView, UserView):
     """某个用户的文章列表
     区别对待本人和别人
@@ -40,12 +40,12 @@ class AllPostByUser(JsonQueryView, UserView):
         })
 
 
-@user_route('/post')
+@user_route('/post/?')
 class AllPostBySelf(JsonQueryView, LoginView):
     """用户本人的文章列表
        GET: done
     """
-    def get(self, user_id):
+    def get(self):
         offset = int(self.query.offset or 0)
         limit = int(self.query.limit or 20)
         self.render({
