@@ -58,8 +58,8 @@ class User(BaseModel):
             'user_id': self.user_id,
             'penname': self.penname or DEFAULT_PENNAME,
             'avatar': self.avatar or DEFAULT_AVATAR,
-            'motto': self.motto,
-            'username': self.username,
+            'motto': self.motto or '',
+            'username': self.username or '',
             'email': self.email
         }
 
