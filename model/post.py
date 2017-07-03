@@ -64,7 +64,6 @@ class Post(BaseModel):
     @property
     def base_info(self):
         """author_info
-        :return:
         """
         # not available
         if self.deleted:
@@ -75,7 +74,6 @@ class Post(BaseModel):
             'content': self.content,
             'title': self.title,
             'abstract': self.abstract,
-            #'user_info': user_info
         }
 
     @base_info.setter
