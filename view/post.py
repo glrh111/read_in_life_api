@@ -26,15 +26,19 @@ post_route = Route(prefix='/post')
 
 @post_route('/?')
 class AllPost(JsonQueryView, UserView):
-    """all post desc by ctime"""
+    """all post desc by ctime
+    POST: done
+    GET: done
+    """
     def get(self):
         offset = int(self.query.offset or 0)
         limit = int(self.query.limit or 20)
 
         self.render({
-            'post_list': Post.get_all_post(
+            'post_list': Post.get_timeline_post(
                 offset=offset,
-                limit=limit
+                limit=limit,
+                observer=self.current_user
             )
         })
 
@@ -52,21 +56,24 @@ class AllPost(JsonQueryView, UserView):
 
 @post_route('/(?P<post_id>\d+)')
 class OnePost(JsonCommonView, UserView):
-    """just for test"""
+    """
+    GET: done
+    PUT: done
+    DELETE: done
+    """
 
     SUPPORTED_METHODS = ('GET', 'PUT', 'DELETE')
 
     def get(self, post_id):
-        post = PostController.get_post_by_id(int(post_id))
         self.render({
-            'post': post.base_info if post else None
+            'post': PostController.get_post_by_id(int(post_id), observer=self.current_user)
         })
 
     @check_post_update_permission
     def put(self, post_id):
         """update
         update_type: 1 content
-                     2 permission
+                     2 permission, title, abstract
         """
 
         if not self.current_user:
@@ -84,8 +91,9 @@ class OnePost(JsonCommonView, UserView):
             update_info = {}
             for update_field in [
                 'available_to_other',
-                'anonymous_to_other',
-                'comment_permission'
+                'comment_permission',
+                'title',
+                'abstract'
             ]:
                 value = getattr(self.json, update_field)
                 if value not in ['', None]:

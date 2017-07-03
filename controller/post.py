@@ -2,25 +2,41 @@
 # coding: utf-8
 
 from model.post import Post
+from model.user import User
 
 
 class PostController(object):
 
     @classmethod
-    def get_all_post(cls, offset, limit, myself_user_id=None):
+    def get_timeline_post(cls, offset, limit, observer=None):
         """all post DESC by"""
-        return Post.get_all_post(
+        return Post.get_timeline_post(
             offset=offset,
-            limit=limit
+            limit=limit,
+            observer=observer
         )
 
     @classmethod
-    def get_post_by_id(cls, post_id, myself_user_id=None):
-        """需要判断是不是本人.
-        1. 如果是本人, 不用检查权限, 即可返回所有
-        2. 如果不是本人, 不对外公开的post不能返回
+    def get_user_post_by_self(cls, user, offset, limit):
+        """自己看自己的文章列表"""
+        return Post.get_user_post_by_self(user, offset, limit)
+
+    @classmethod
+    def get_user_post_by_other(cls, user_id, offset, limit, observer=None):
+        """observer看user_id的文章列表
+           observer=None 匿名查看
         """
-        return Post.get_post_by_id(post_id)
+        user = User.find_one({ 'user_id': user_id })
+        if user:
+            return Post.get_user_post_by_other(user, offset, limit, observer=observer)
+        else:
+            return []
+
+    @classmethod
+    def get_post_by_id(cls, post_id, observer=None):
+        """observer代表看到这一篇文章的人。
+        """
+        return Post.get_post_by_id(post_id, observer=observer)
 
     @classmethod
     def new_post(cls, current_user_id):
@@ -36,10 +52,12 @@ class PostController(object):
     @classmethod
     def update_permission(cls, post_id, update_info):
         """available_to_other
-           anonymous_to_other
+           #anonymous_to_other
            comment_permission
+           title
+           abstract
         """
-        return Post.update_permission(post_id, **update_info)
+        return Post.update_other_info(post_id, **update_info)
 
     @classmethod
     def delete_post(cls, post_id):

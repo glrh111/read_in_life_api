@@ -15,6 +15,7 @@ from lib.web.view.error import BadArgument
 from model.user import User
 from model.post import Post
 from controller.user import UserController
+from controller.post import PostController
 
 
 user_route = Route(prefix='/user')
@@ -22,13 +23,34 @@ user_route = Route(prefix='/user')
 
 @user_route('/(?P<user_id>\d+)/post')
 class AllPostByUser(JsonQueryView, UserView):
-    """just for test"""
+    """某个用户的文章列表
+    区别对待本人和别人
+    GET: done
+    """
     def get(self, user_id):
         offset = int(self.query.offset or 0)
         limit = int(self.query.limit or 20)
         self.render({
-            'post_list': Post.get_all_post_by_user_id(
+            'post_list': PostController.get_user_post_by_other(
                 user_id=int(user_id),
+                offset=offset,
+                limit=limit,
+                observer=self.current_user
+            )
+        })
+
+
+@user_route('/post')
+class AllPostBySelf(JsonQueryView, LoginView):
+    """用户本人的文章列表
+       GET: done
+    """
+    def get(self, user_id):
+        offset = int(self.query.offset or 0)
+        limit = int(self.query.limit or 20)
+        self.render({
+            'post_list': PostController.get_user_post_by_self(
+                user=self.current_user,
                 offset=offset,
                 limit=limit
             )
@@ -38,7 +60,13 @@ class AllPostByUser(JsonQueryView, UserView):
 @user_route('/?')
 class UserInfo(JsonCommonView, LoginView):
     """just for test"""
-    SUPPORTED_METHODS = ('PUT')
+    SUPPORTED_METHODS = ('GET', 'PUT')
+
+    def get(self):
+        """get info"""
+        self.render({
+            'user': self.current_user.base_info if self.current_user else {}
+        })
 
     def put(self):
         """update
