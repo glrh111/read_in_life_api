@@ -250,8 +250,8 @@ class Post(BaseModel):
             # 'anonymous_to_other': bool,
             'comment_permission': int,
 
-            'title': str,
-            'abstract': str
+            'title': None,
+            'abstract': None
         }
 
         update_dict = {
@@ -265,9 +265,9 @@ class Post(BaseModel):
                     if 'comment_permission' == key:
                         if value not in COMMENT_PERIMISSION.values():
                             continue
-
+                    value = type_handler(value) if type_handler else value
                     update_dict.update({
-                        key: type_handler(value)
+                        key: value
                     })
             except Exception:
                 pass

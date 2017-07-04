@@ -114,7 +114,8 @@ class OnePost(JsonCommonView, UserView):
             raise BadArgument('update_type is essential.')
 
         self.render({
-            'post': result.base_info
+            'post': result.base_info if result else None,
+            'code': 1 if result else 2
         })
 
     @check_post_update_permission
