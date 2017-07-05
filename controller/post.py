@@ -45,9 +45,9 @@ class PostController(object):
         return Post.add_post(current_user_id)
 
     @classmethod
-    def update_content(cls, post_id, content):
+    def update_content_info(cls, post_id, content_info):
         """just update content"""
-        return Post.update_content(post_id, content)
+        return Post.update_content_info(post_id, content_info)
 
     @classmethod
     def update_permission(cls, post_id, update_info):

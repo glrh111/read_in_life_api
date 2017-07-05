@@ -72,8 +72,8 @@ class OnePost(JsonCommonView, UserView):
     @check_post_update_permission
     def put(self, post_id):
         """update
-        update_type: 1 content
-                     2 permission, title, abstract
+        update_type: 1 content, title, abstract
+                     2 permission, and other
         """
 
         if not self.current_user:
@@ -81,10 +81,13 @@ class OnePost(JsonCommonView, UserView):
         post_id = int(post_id)
         update_type = int(self.json.update_type or 0)
         if 1 == update_type:
-            content = self.json.content
-            result = PostController.update_content(
+            result = PostController.update_content_info(
                 post_id=post_id,
-                content=content
+                content_info={
+                    'content': self.json.content,
+                    'title': self.json.title,
+                    'abstract': self.json.abstract
+                }
             )
 
         elif 2 == update_type:

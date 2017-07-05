@@ -74,7 +74,8 @@ class Post(BaseModel):
             'content': self.content,
             'title': self.title,
             'abstract': self.abstract,
-            'utime': self.utime
+            'utime': self.utime,
+            'is_available_to_other': self.available_to_other
         }
 
     @base_info.setter
@@ -219,27 +220,51 @@ class Post(BaseModel):
         return return_post
 
     @classmethod
-    def update_content(cls, post_id, content):
+    def update_content_info(cls, post_id, content_info):
         """1. new a PostHistory and get its `version`
            2. update Post.head_version
+
+           update in 2017-07-05 could update <title, abstract>
         """
-        # 1
-        post_history = PostHistory.add_post_history(
-            post_id, content
-        )
-        if not post_history:
-            return None
-        # 2
-        new_post = cls.find_and_modify(
-            spec={'post_id': post_id},
-            update={
-                'head_version': post_history.version,
+
+        content = content_info.get('content')
+        re_post = None
+        if content:
+            # 1
+            post_history = PostHistory.add_post_history(
+                post_id, content
+            )
+            if post_history:
+                # 2
+                new_post = cls.find_and_modify(
+                    spec={'post_id': post_id},
+                    update={
+                        'head_version': post_history.version,
+                        'utime': timestamp_by_13()
+                    }
+                )
+                if new_post:
+                    re_post = new_post
+
+        update_info = {}
+        for field in ['title', 'abstract']:
+            value = content_info.get(field)
+            if value:
+                update_info.update({
+                    field: value
+                })
+        if update_info:
+            update_info.update({
                 'utime': timestamp_by_13()
-            }
-        )
-        if not new_post:
-            return None
-        return new_post
+            })
+            new_post = cls.find_and_modify(
+                spec={'post_id': post_id},
+                update=update_info
+            )
+            if new_post:
+                re_post = new_post
+
+        return re_post
 
     @classmethod
     def update_other_info(cls, post_id, **kwargs):
