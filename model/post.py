@@ -285,7 +285,7 @@ class Post(BaseModel):
         for key, type_handler in default_type_dict.items():
             try:
                 value = kwargs.get(key)
-                if value:
+                if value not in [None, '']:
 
                     if 'comment_permission' == key:
                         if value not in COMMENT_PERIMISSION.values():
