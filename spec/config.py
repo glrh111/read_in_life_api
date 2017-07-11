@@ -31,7 +31,7 @@ class Default:
     WEAPP_JSCODE2OPENID = 'https://api.weixin.qq.com/sns/jscode2session'
 
     # origin
-    CORS_STRING = 'http://readinlife.com'
+    CORS_STRING = 'http://readinlife.com:4200'
 
 
 class Development(Default):
