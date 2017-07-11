@@ -30,6 +30,9 @@ class Default:
     WEAPP_SECRET = os.getenv('WEAPP_SECRET')
     WEAPP_JSCODE2OPENID = 'https://api.weixin.qq.com/sns/jscode2session'
 
+    # origin
+    CORS_STRING = 'http://glrh11.com,https://glrh111.com'
+
 
 class Development(Default):
     """for development"""

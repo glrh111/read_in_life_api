@@ -97,6 +97,11 @@ class JsonView(BaseView):
             chunk = '%s(%s)' % (callback, chunk)
         self.set_header('Content-Type', 'application/json; charset=UTF-8')
 
+        # write origin
+        self.set_header('Access-Control-Allow-Origin', app_config.CORS_STRING)
+        self.set_header('Access-Control-Request-Method', 'GET,POST,PUT,DELETE')
+        self.set_header('Access-Control-Allow-Credentials', 'true')
+
         if isinstance(chunk, dict):
             super(JsonView, self).finish(ujson.dumps(chunk, ensure_ascii=False))
         else:
