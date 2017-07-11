@@ -12,7 +12,7 @@ class Default:
 
     SESSION_EXPIRE = 100  # 100 day
 
-    HOST = 'read-in-life.com'
+    HOST = 'readinlife.com'
 
     # redis config
     REDIS_CONFIG = {
@@ -31,7 +31,7 @@ class Default:
     WEAPP_JSCODE2OPENID = 'https://api.weixin.qq.com/sns/jscode2session'
 
     # origin
-    CORS_STRING = 'http://glrh11.com,https://glrh111.com'
+    CORS_STRING = 'http://readinlife.com'
 
 
 class Development(Default):
