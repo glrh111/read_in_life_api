@@ -42,11 +42,21 @@ class JsonView(BaseView):
         self.content_type = self.request.headers.get('content-type')
         super(JsonView, self).prepare()
 
+    def get_all_method(self):
+        old = self.SUPPORTED_METHODS
+        if len(old) == 0:
+            old = []
+        elif len(old) == 1:
+            old = [old]
+        else:
+            old = list(old)
+        return old + ['OPTIONS']
+
     @gen.coroutine
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
         try:
-            if self.request.method not in (list(self.SUPPORTED_METHODS) + ['OPTIONS']):
+            if self.request.method not in self.get_all_method():
                 raise HTTPError(405)
             try:
                 result = self.prepare()
@@ -108,7 +118,7 @@ class JsonView(BaseView):
             super(JsonView, self).finish(chunk)
 
     def options(self, *args, **kwargs):
-        self.set_header('Allow', ','.join(list(self.SUPPORTED_METHODS) + ['OPTIONS']))
+        self.set_header('Allow', ','.join(self.get_all_method()) )
         self.finish()
 
 
