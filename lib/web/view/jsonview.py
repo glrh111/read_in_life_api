@@ -44,12 +44,13 @@ class JsonView(BaseView):
 
     def get_all_method(self):
         old = self.SUPPORTED_METHODS
-        if len(old) == 0:
+        if 0 == len(old):
             old = []
-        elif len(old) == 1:
-            old = [old]
         else:
-            old = list(old)
+            if not isinstance(old, tuple):
+                old = [old]
+            else:
+                old = list(old)
         return old + ['OPTIONS']
 
     @gen.coroutine
