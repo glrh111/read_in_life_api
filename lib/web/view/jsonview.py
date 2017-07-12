@@ -46,7 +46,7 @@ class JsonView(BaseView):
     def _execute(self, transforms, *args, **kwargs):
         self._transforms = transforms
         try:
-            if self.request.method not in self.SUPPORTED_METHODS:
+            if self.request.method not in (list(self.SUPPORTED_METHODS) + ['OPTIONS']):
                 raise HTTPError(405)
             try:
                 result = self.prepare()
@@ -106,6 +106,10 @@ class JsonView(BaseView):
             super(JsonView, self).finish(ujson.dumps(chunk, ensure_ascii=False))
         else:
             super(JsonView, self).finish(chunk)
+
+    def options(self, *args, **kwargs):
+        self.set_header('Allow', ','.join(list(self.SUPPORTED_METHODS) + ['OPTIONS']))
+        self.finish()
 
 
 class JsonPostView(JsonView):
