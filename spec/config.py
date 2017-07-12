@@ -46,7 +46,7 @@ class Testing(Default):
 
 class Production(Default):
     """for production"""
-    # HOST = 'glrh11.com'
+    HOST = 'glrh11.com'
 
     SQL_SERVER_URL = 'postgresql://read_in_life:wocao@postgres/read_in_life'
     REDIS_CONFIG = {
