@@ -67,7 +67,7 @@ class Register(JsonPostView, UserView):
         # TODO: fix it , this login not working sometimes.
         self.login(user)
 
-        self.finish({
+        self.render({
             'user': user.base_info
         })
 
