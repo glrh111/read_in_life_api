@@ -100,21 +100,21 @@ class JsonView(BaseView):
         chunk.update(default_response)
         self.finish(chunk)
 
-    def finish(self, chunk={}):
-        callback = self.get_argument('callback', None)
-        if callback:
-            if type(chunk) is dict:
-                chunk = ujson.dumps(chunk, ensure_ascii=False)
-            chunk = '%s(%s)' % (callback, chunk)
+    def finish(self, chunk=None):
+        chunk = chunk or ''
+        # callback = self.get_argument('callback', None)
+        # if callback:  # this is done for jsonp, but I don't care
+        #     if type(chunk) is dict:
+        #         chunk = ujson.dumps(chunk, ensure_ascii=False)
+        #     chunk = '%s(%s)' % (callback, chunk)
         self.set_header('Content-Type', 'application/json; charset=UTF-8')
 
         # write origin
         self.set_header('Access-Control-Allow-Origin', app_config.CORS_STRING)
         self.set_header('Access-Control-Request-Method', 'GET,POST,PUT,DELETE')
-        self.set_header('Access-Control-Allow-Methods', '*')
+        self.set_header('Access-Control-Allow-Methods', ','.join(self.get_all_method()) )
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.set_header('Access-Control-Allow-Headers', 'X-PINGOTHER, Content-Type')
-
 
         if isinstance(chunk, dict):
             super(JsonView, self).finish(ujson.dumps(chunk, ensure_ascii=False))
