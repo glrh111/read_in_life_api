@@ -111,8 +111,10 @@ class JsonView(BaseView):
         # write origin
         self.set_header('Access-Control-Allow-Origin', app_config.CORS_STRING)
         self.set_header('Access-Control-Request-Method', 'GET,POST,PUT,DELETE')
+        self.set_header('Access-Control-Allow-Methods', '*')
         self.set_header('Access-Control-Allow-Credentials', 'true')
         self.set_header('Access-Control-Allow-Headers', 'X-PINGOTHER, Content-Type')
+
 
         if isinstance(chunk, dict):
             super(JsonView, self).finish(ujson.dumps(chunk, ensure_ascii=False))
