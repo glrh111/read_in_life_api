@@ -16,14 +16,14 @@ class Default:
 
     # redis config
     REDIS_CONFIG = {
-        'host': '172.17.0.3',
+        'host': '172.17.0.2',
         'port': 6379,
         'db': 0,
         'password': ''
     }
 
     # SQL server config
-    SQL_SERVER_URL = 'postgresql://read_in_life:wocao@172.17.0.5/read_in_life'
+    SQL_SERVER_URL = 'postgresql://read_in_life:wocao@172.17.0.3/read_in_life'
 
     # weapp
     WEAPP_APPID = os.getenv('WEAPP_APPID')
@@ -32,6 +32,9 @@ class Default:
 
     # origin
     CORS_STRING = 'http://readinlife.com'
+
+    # elastic search url
+    ELASTICSEARCH_URL = '123.56.250.233:9200'
 
 
 class Development(Default):

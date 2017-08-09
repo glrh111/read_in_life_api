@@ -21,6 +21,7 @@ from lib.web.model.sql_db import BaseModel
 from model.user import User
 from model.post import Post
 from model.account import SNSAccount
+from model.text_message import TextMessage
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
